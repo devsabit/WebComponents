@@ -2,6 +2,30 @@
     font-family: Roboto, Helvetica, Verdana, sans-serif;
 }
 
-span {
-    font-style: italic;
+.header  { grid-area: header; }
+.aside   { grid-area: aside; }
+.content { grid-area: content; }
+.footer  { grid-area: footer; }
+
+.container {
+	display: grid;
+	grid-gap: 10px;
+	grid-template-columns: 33% 33% 33%;
+	grid-template-areas:
+		"header header  header"
+		"aside  content content"
+		"footer footer  footer";
+	/*background-color: #444;
+	color: #fff;*/
+}
+
+.box {
+	background-color: #333;
+	color: #fff;
+	border-radius: 5px;
+	padding: 30px;
+}
+
+.header, .footer {
+	background-color: #999;
 }
