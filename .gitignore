@@ -261,5 +261,5 @@ __pycache__/
 *.pyc
 
 # Ignore compiled TypeScript files
-**/WebCompClient/**/*.map
-**/WebCompClient/**/*.js
+WebCompClient/**/*.js.map
+WebCompClient/**/*.js
