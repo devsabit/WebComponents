@@ -6,4 +6,6 @@ import MyAside from './WebComponents/MyAside/MyAside.js';
 customElements.define('my-aside', MyAside);
 import MyContent from './WebComponents/MyContent/MyContent.js';
 customElements.define('my-content', MyContent);
+import HtmlPage from './WebComponents/HtmlPage/HtmlPage.js';
+customElements.define('html-page', HtmlPage);
 //# sourceMappingURL=app.js.map

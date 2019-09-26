@@ -17,7 +17,7 @@
 	// static properties (get/set)
 	// In TypeScript 3.6 there is no way of accessing the derived type static property within a base class static method without using <any> casting
 	// see https://github.com/microsoft/TypeScript/issues/5863
-	// ES6 proposal has been added: ???
+	// ES6 proposal has been added: link???
 
 	// html tag name
 	protected static _tagName: string = "not used";
@@ -83,6 +83,7 @@
 			return;
 		}
 
+		// connectedCallback and all descendents must be awaited otherwise intialisation/binding will fail
 		await this.loadTemplate();
 
 		// call addEventListener for every event in html
@@ -93,38 +94,15 @@
 		alert('BaseComponent.disconnectedCallback() called');
 	}
 
-	//private codeFunc() {
-	//	let fn = new Function("ev", code);
-	//}
-
-	//public handleEvent(ev: Event) {
-	//}
-
 	private AddEventHandler(id: string, eventName: string, code: string) {
-
-		//inputA.addEventListener('change', (ev: Event) => {
-		//	let el = ev.srcElement as HTMLInputElement;
-		//	this.a = Number(el.value);
-		//});
-
 		let el = this.GetShadowElement<HTMLElement>(id);
 		let callbackFn = new Function("ev", code);
 		el.addEventListener(eventName, callbackFn.bind(this));
-
-		//let bound = fn.bind(null, this);
-		//el.addEventListener(eventName, bound);
-		//el.addEventListener(name, event => codeFunc(event, name, this));
-		//el.addEventListener(eventName, (ev: Event) => fn(ev) );
-		//el.addEventListener(eventName, this);
-
 	}
 
 	private ParseEvent(key: string) {
 		//
 		// <input type="number" value="[[a]]" id="input-a" @change="this.a = el.value">
-		//
-		//	string.substr(start, length)
-		//	string.substring(start, end)
 		//
 		let idEnd = 0;
 		let idStart = key.indexOf('id=') + 4;
@@ -155,7 +133,7 @@
 
 	private AddDataBinding(htmlTemplate: string): string {
 
-		// Note matchAll not offically available until 2020, but alledgely can be polyfilled by TypeScript:
+		// Note matchAll not offically available until 2020, but allegedly can be polyfilled by TypeScript:
 		//	https://stackoverflow.com/questions/55499555/property-matchall-does-not-exist-on-type-string
 
 		// substitute all {{property}} items for <span id="field-n"> elements to allow one-way binding from Typescript properties to html elements

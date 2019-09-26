@@ -13,4 +13,4 @@ customElements.define('my-content', MyContent);
 import HtmlPage from './WebComponents/HtmlPage/HtmlPage.js';
 customElements.define('html-page', HtmlPage);
 
-import Router from './WebComponents/Router/js';
+import Router from './WebComponents/Router.js';
