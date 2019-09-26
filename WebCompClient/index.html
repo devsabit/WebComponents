@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<title>TypeScript HTML App</title>
+	<link async rel="stylesheet" href="app.css" type="text/css" />
+
+	<!-- use es6 modules (must specify type="module") -->
+	<!-- see https://medium.com/@mattlag/es6-modules-getting-started-gotchas-2ad154f38e2e -->
+	<!-- load synchronously so customElements.define statements get called before custom elements are referenced -->
+	<script type="module" src="app.js"></script>
+
+</head>
+
+<body>
+	<my-header></my-header>
+	<my-aside></my-aside><my-content></my-content>
+	<my-footer></my-footer>
+</body>
+
+</html>

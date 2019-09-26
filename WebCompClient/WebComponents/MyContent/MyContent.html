@@ -1,0 +1,13 @@
+﻿<link async rel="stylesheet" href="/WebComponents/MyContent/MyContent.css">
+
+<template id="my-content">
+	<main>
+		<h1>Main content (Web Component)</h1>
+
+		<input type="number" value="[[a]]" id="input-a" @change="this.a = ev.target.value">
+		<input type="number" value="[[b]]" id="input-b" @change="this.b = ev.target.value">
+
+		<p>{{a}} + {{b}} = {{total}}</p>
+
+	</main>
+</template>
