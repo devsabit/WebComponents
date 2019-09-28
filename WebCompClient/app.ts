@@ -16,4 +16,4 @@ customElements.define('html-page', HtmlPage);
 import MyCounter from './WebComponents/MyCounter/MyCounter.js';
 customElements.define('my-counter', MyCounter);
 
-import Router from './WebComponents/Router.js';
+//import Router from './WebComponents/Router.js';
