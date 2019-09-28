@@ -58,6 +58,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="tsconfig.json" />
+    <Content Include="WebComponents\MyCounter\MyCounter.css" />
+    <Content Include="WebComponents\MyCounter\MyCounter.html" />
     <Content Include="WebComponents\HtmlPage\HtmlPage.css" />
     <Content Include="WebComponents\HtmlPage\HtmlPage.html" />
     <Content Include="WebComponents\MyAside\MyAside.html" />
@@ -83,6 +85,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="globals.d.ts" />
+    <TypeScriptCompile Include="WebComponents\MyCounter\MyCounter.ts" />
     <TypeScriptCompile Include="WebComponents\Router.ts" />
     <TypeScriptCompile Include="WebComponents\BaseComponent.ts" />
     <TypeScriptCompile Include="WebComponents\HtmlPage\HtmlPage.ts" />
@@ -96,6 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+    <Folder Include="WebComponents\TestData\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

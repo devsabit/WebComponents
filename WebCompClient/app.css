@@ -1,5 +1,5 @@
 ﻿body {
-    font-family: Roboto, Helvetica, Verdana, sans-serif;
+	font-family: Roboto, Helvetica, Verdana, sans-serif;
 }
 
 .header  { grid-area: header; }
@@ -15,8 +15,11 @@
 		"header header  header"
 		"aside  content content"
 		"footer footer  footer";
-	/*background-color: #444;
-	color: #fff;*/
+}
+
+/* ignore these container elements in grid */
+div, header, aside, main, footer {
+	display: contents;
 }
 
 .box {

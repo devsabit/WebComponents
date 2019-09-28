@@ -13,4 +13,7 @@ customElements.define('my-content', MyContent);
 import HtmlPage from './WebComponents/HtmlPage/HtmlPage.js';
 customElements.define('html-page', HtmlPage);
 
+import MyCounter from './WebComponents/MyCounter/MyCounter.js';
+customElements.define('my-counter', MyCounter);
+
 import Router from './WebComponents/Router.js';

@@ -1,7 +1,13 @@
-﻿<link async rel="stylesheet" href="/WebComponents/MyAside/MyAside.css">
+﻿<template id="my-aside">
+	<link rel="stylesheet" href="/WebComponents/MyAside/MyAside.css">
 
-<template id="my-aside">
 	<aside>
-		<span>This is the side menu (Web Component)</span>
+		<ul>
+			<li id="aside1" @click="this.loadComponent('my-content', 'main', 'content')">Home</li>
+			<li id="aside2" @click="this.loadComponent('html-page', 'main', 'news')">News</li>
+			<li id="aside3" @click="this.loadComponent('html-page', 'main', 'contact')">Contact</li>
+			<li id="aside4" @click="this.loadComponent('html-page', 'main', 'about')">About</li>
+			<li id="aside5" @click="this.loadComponent('my-counter', 'main', 'counter')">Counter</li>
+		</ul>
 	</aside>
 </template>
