@@ -16,11 +16,9 @@ export default class HtmlPage extends BaseComponent {
 		// call base class and wait till complete
 		await super.connectedCallback();
 
-		// load page html here
+		// get slug from url & update component props/fields
 		let url = window.location.href;
 		let lastSlash = url.lastIndexOf('/');
-
-		// update component props/fields
 		this.pageName = url.substr(lastSlash + 1);
 		let response = await fetch(`/WebComponents/TestData/${this.pageName}.html`);
 		this.pageContent = await response.text();

@@ -32,3 +32,102 @@ div, header, aside, main, footer {
 .header, .footer {
 	background-color: #999;
 }
+
+/* colour palette from https://www.rapidtables.com/web/color/RGB_Color.html */
+
+/* text colours */
+.text-red1 { color: #300; }
+.text-red2 { color: #600; }
+.text-red3 { color: #900; }
+.text-red4 { color: #c00; }
+.text-red5 { color: #f00; }
+.text-red6 { color: #f33; }
+.text-red7 { color: #f66; }
+.text-red8 { color: #f99; }
+.text-red9 { color: #fcc; }
+
+.text-green1 { color: #030; }
+.text-green2 { color: #060; }
+.text-green3 { color: #090; }
+.text-green4 { color: #0c0; }
+.text-green5 { color: #0f0; }
+.text-green6 { color: #3f3; }
+.text-green7 { color: #6f6; }
+.text-green8 { color: #9f9; }
+.text-green9 { color: #cfc; }
+
+.text-blue1 { color: #003; }
+.text-blue2 { color: #006; }
+.text-blue3 { color: #009; }
+.text-blue4 { color: #00c; }
+.text-blue5 { color: #00f; }
+.text-blue6 { color: #33f; }
+.text-blue7 { color: #66f; }
+.text-blue8 { color: #99f; }
+.text-blue9 { color: #ccf; }
+
+.text-black { color: #000; }
+.text-grey1 { color: #222; }
+.text-grey2 { color: #333; }
+.text-grey3 { color: #444; }
+.text-grey4 { color: #555; }
+.text-grey5 { color: #666; }
+.text-grey6 { color: #888; }
+.text-grey7 { color: #aaa; }
+.text-grey8 { color: #ccc; }
+.text-grey9 { color: #eee; }
+.text-white { color: #fff; }
+
+/* background colours */
+.bg-red1 { background-color: #300; }
+.bg-red2 { background-color: #600; }
+.bg-red3 { background-color: #900; }
+.bg-red4 { background-color: #c00; }
+.bg-red5 { background-color: #f00; }
+.bg-red6 { background-color: #f33; }
+.bg-red7 { background-color: #f66; }
+.bg-red8 { background-color: #f99; }
+.bg-red9 { background-color: #fcc; }
+
+.bg-green1 { background-color: #030; }
+.bg-green2 { background-color: #060; }
+.bg-green3 { background-color: #090; }
+.bg-green4 { background-color: #0c0; }
+.bg-green5 { background-color: #0f0; }
+.bg-green6 { background-color: #3f3; }
+.bg-green7 { background-color: #6f6; }
+.bg-green8 { background-color: #9f9; }
+.bg-green9 { background-color: #cfc; }
+
+.bg-blue1 { background-color: #003; }
+.bg-blue2 { background-color: #006; }
+.bg-blue3 { background-color: #009; }
+.bg-blue4 { background-color: #00c; }
+.bg-blue5 { background-color: #00f; }
+.bg-blue6 { background-color: #33f; }
+.bg-blue7 { background-color: #66f; }
+.bg-blue8 { background-color: #99f; }
+.bg-blue9 { background-color: #ccf; }
+
+.bg-grey1 { background-color: #222; }
+.bg-grey2 { background-color: #333; }
+.bg-grey3 { background-color: #444; }
+.bg-grey4 { background-color: #555; }
+.bg-grey5 { background-color: #666; }
+.bg-grey6 { background-color: #888; }
+.bg-grey7 { background-color: #aaa; }
+.bg-grey8 { background-color: #ccc; }
+.bg-grey9 { background-color: #eee; }
+
+.rounded-top { border-radius: 0.25rem 0.25rem 0 0 }
+
+.px1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+.px2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+.px3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.px4 { padding-left: 1rem; padding-right: 1rem; }
+
+.py1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.py2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.py4 { padding-top: 1rem; padding-bottom: 1rem; }
+

@@ -21,7 +21,7 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <TypeScriptToolsVersion>3.6</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -58,6 +58,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="tsconfig.json" />
+    <Content Include="WebComponents\Alert\Alert.css" />
+    <Content Include="WebComponents\Alert\Alert.html" />
     <Content Include="WebComponents\MyCounter\MyCounter.css" />
     <Content Include="WebComponents\MyCounter\MyCounter.html" />
     <Content Include="WebComponents\HtmlPage\HtmlPage.css" />
@@ -70,6 +72,8 @@
     <Content Include="WebComponents\MyFooter\MyFooter.html" />
     <Content Include="WebComponents\MyHeader\MyHeader.css" />
     <Content Include="WebComponents\MyHeader\MyHeader.html" />
+    <Content Include="WebComponents\MyInputForm\MyInputForm.css" />
+    <Content Include="WebComponents\MyInputForm\MyInputForm.html" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -85,7 +89,11 @@
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="globals.d.ts" />
+    <TypeScriptCompile Include="WebComponents\Alert\Alert.ts" />
     <TypeScriptCompile Include="WebComponents\MyCounter\MyCounter.ts" />
+    <TypeScriptCompile Include="WebComponents\MyInputForm\MyInputForm.ts" />
+    <TypeScriptCompile Include="WebComponents\MyInputForm\Person.ts" />
+    <TypeScriptCompile Include="WebComponents\PropDecorator.ts" />
     <TypeScriptCompile Include="WebComponents\Router.ts" />
     <TypeScriptCompile Include="WebComponents\BaseComponent.ts" />
     <TypeScriptCompile Include="WebComponents\HtmlPage\HtmlPage.ts" />

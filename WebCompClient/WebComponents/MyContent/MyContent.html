@@ -4,8 +4,8 @@
 	<div>
 		<h1>Main content (Web Component)</h1>
 
-		<input type="number" value="[[a]]" id="input-a" @change="this.a = ev.target.value">
-		<input type="number" value="[[b]]" id="input-b" @change="this.b = ev.target.value">
+		<input type="number" value="[[a]]" id="input-a" @change="increaseA">		<!-- this.a = ev.target.value -->
+		<input type="number" value="[[b]]" id="input-b" @change="increaseB">		<!-- this.b = ev.target.value -->
 
 		<p>{{a}} + {{b}} = {{total}}</p>
 

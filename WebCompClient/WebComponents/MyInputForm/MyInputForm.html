@@ -1,0 +1,16 @@
+﻿<link async rel="stylesheet" href="/WebComponents/MyInputForm/MyInputForm.css">
+
+<template id="my-input-form">
+	<form model="MyInputForm">
+		<label>Forename</label><input type="text" name="forename" id="wci-forename"><br>
+		<label>Surname</label><input type="text" name="surname" id="wci-surname"><br>
+		<label>DOB</label><input type="date" name="dob" id="wci-dob"><br>
+		<label>Age</label><input type="number" name="age" id="wci-age"><br>
+
+		<label>Alive?</label>
+		<label>Yes</label><input type="radio" name="AliveGroup" id="wci-alive">
+		<label>No</label><input type="radio" name="AliveGroup" id="wci-alive2"><br>
+
+		<button type="button" @click="this.onSubmit()" id="wcb-submit">Submit</button><br>
+	</form>
+</template>

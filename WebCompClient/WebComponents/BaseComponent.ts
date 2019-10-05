@@ -1,5 +1,9 @@
 ﻿// see https://html.spec.whatwg.org/multipage/custom-elements.html
 // and https://html.spec.whatwg.org/multipage/custom-elements.html#customelementregistry
+// good article: https://blog.usejournal.com/web-components-will-replace-your-frontend-framework-3b17a580831c
+//
+// and for bugs/shortcomings see:
+//	https://dev.to/webpadawan/beyond-the-polyfills-how-web-components-affect-us-today-3j0a
 //
 //	Web Components API functions
 //	============================
@@ -9,6 +13,8 @@
 //	window.customElements.get(name)
 //	window.customElements.upgrade(root)
 //
+
+//import PropDecorator from './PropDecorator.js';
 
 interface IPushState {
 	htmlTag: string,
@@ -25,15 +31,15 @@ interface IComponent {
 
 export default class BaseComponent extends HTMLElement
 {
+	// static properties (get/set)
+
 	// Note that TypeScript is unable to reference derived class static members from the base class without some casting, so
 	// you need to do this:
-	//	(this.constructor as any).MyStaticProperty (derived class copy, not base class copy)
+	//	(this.constructor as any).MyStaticProperty (accesses derived class copy, not base class copy)
 	//
 	//	see https://github.com/Microsoft/TypeScript/issues/3841
 	//	and possible workaround: https://github.com/Microsoft/TypeScript/issues/3841#issuecomment-337560146
 
-	// static properties (get/set)
-	// In TypeScript 3.6 there is no way of accessing the derived type static property within a base class static method without using <any> casting
 	// see https://github.com/microsoft/TypeScript/issues/5863
 	// ES6 proposal has been added: link???
 
@@ -104,17 +110,17 @@ export default class BaseComponent extends HTMLElement
 		this.cloneAndAttachTemplate(false);
 	}
 
-	GetShadowElement<T extends HTMLElement>(id: string): HTMLElement {
+	GetShadowElement<T extends HTMLElement>(id: string): Nullable<T> {
 		let shad = this.shadowRoot;
 		if (shad == null) {
 			alert('GetShadowElement(): this.shadowRoot is null')
-			return new HTMLElement();
+			return null;
 		}
 
 		let el = shad.querySelector<T>(`#${id}`);
 		if (el == null) {
 			alert(`GetShadowElement(): element with id ${id} not found`);
-			return new HTMLElement();
+			return null;
 		}
 
 		return el;
@@ -125,12 +131,15 @@ export default class BaseComponent extends HTMLElement
 		let elValue: string = String(this[propName]);
 
 		let el = this.GetShadowElement<HTMLElement>(elName);
-		el.innerHTML = elValue;
+		if (el == null)
+			alert(`SetElementContent(): Could not find element ${elName} inside component ${this.constructor.name}`);
+		else
+			el.innerHTML = elValue;
 	}
 
 	// DOM element loaded event
 	protected async connectedCallback() {
-		console.log(`super: ${this.constructor.name}.connectedCallback() called`);
+		console.log(`DOM event => ${this.constructor.name}.connectedCallback() called`);
 
 		// if this component has already been initialised, then do nothing
 		if (this.ShadRoot != null) {
@@ -139,7 +148,7 @@ export default class BaseComponent extends HTMLElement
 		}
 
 		if (!customElements.whenDefined(this.TagName)) {
-			alert(`${this.TagName} is not [yet?] registered, have you called customElements.define('${this.TagName}', '${this.constructor.name}')`);
+			alert(`${this.TagName} is not [yet?] registered, have you called customElements.define('${this.TagName}', '${this.constructor.name}') in the app.ts file?`);
 			return;
 		}
 
@@ -150,19 +159,67 @@ export default class BaseComponent extends HTMLElement
 		// call addEventListener for every event in html
 	}
 
+	// DOM element unloaded event
 	protected async disconnectedCallback() {
 		// call removeEventListener for every event in html
-		console.log(`${this.constructor.name}.disconnectedCallback() called`);
+		console.log(`DOM event => ${this.constructor.name}.disconnectedCallback() called`);
 	}
 
+	//setProp<K extends keyof this>(propName: K, propValue: this[K]) {
+	//	this[propName] = propValue;
+	//}
+
+	////getSafePropIndex<K extends keyof BaseComponent, T extends BaseComponent>(propName: K): T[K] {
+	//getProp<K extends keyof this>(propName: K): this[K] {
+	//	return this[propName];
+	//}
+
+	protected async attributeChangedCallback(
+		custAttrName: keyof this,
+		oldVal: this[keyof this],
+		newVal: this[keyof this])
+	{
+		let msg = `DOM event => attributeChangedCallback(): Attribute name : ${custAttrName}, old value: ${oldVal}, new value: ${newVal}`;
+		alert(msg);
+		console.log(msg);
+		this[custAttrName] = newVal;
+		//this.setProp(custAttrName, newVal);
+	}
+
+	// not currently used by this class
 	protected async adoptedCallback() {
 		alert(`${this.constructor.name}.adoptedCallback() called`);
 	}
 
+	private getFunctionByName<K extends keyof this>(key: K): EventListener {
+		return this[key] as unknown as EventListener;
+	}
+
+	//private getFunctionByName2<T, K extends keyof T>(source: T, key: K): EventListener {
+	//	return source[key] as unknown as EventListener;
+	//}
+
 	private AddEventHandler(id: string, eventName: string, code: string) {
+		// find the html element to attach the handler to
 		let el = this.GetShadowElement<HTMLElement>(id);
-		let callbackFn = new Function("ev", code);
-		el.addEventListener(eventName, callbackFn.bind(this));
+		if (el == null) {
+			alert(`BaseComponent.AddEventHandler(): HTML element ${id} was not found within component ${this.TagName}`);
+			return;
+		}
+
+		// check to see if code specifies a function name
+		// see https://stackoverflow.com/questions/2008279/validate-a-javascript-function-name
+		let regexFunctionName = RegExp(/^[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*$/);
+		if (regexFunctionName.test(code)) {
+			// JavaScript method name specified, use this as event handler
+			let existingUserFn = this.getFunctionByName(code as keyof this);
+			el.addEventListener(eventName, existingUserFn.bind(this));
+		}
+		else {
+			// not a JS function name, create anonymous handler and add specified code
+			let newAnonFn = new Function("event", code);
+			el.addEventListener(eventName, newAnonFn.bind(this));
+		}
 	}
 
 	private ParseEvent(key: string) {
@@ -291,6 +348,12 @@ export default class BaseComponent extends HTMLElement
 		if (existingComponent == null) {
 			// not found, create new instance of component
 			let componentClass = window.customElements.get(htmlTag);
+			if (componentClass === undefined) {
+				let msg = `Component '${htmlTag}' not found. Check component is registered with customElements.define(...) in app.ts`;
+				console.log(msg);
+				alert(msg);
+				return;
+			}
 			console.log(`Creating new component '${componentClass.constructor.name}'`);
 			componentToInsert = new componentClass(htmlTag);
 		}
@@ -303,7 +366,7 @@ export default class BaseComponent extends HTMLElement
 		// get ref to target HTML element container
 		let parent = document.querySelector<HTMLElement>(targetElement);
 		if (parent == null) {
-			alert(`Could not find element ${targetElement} in current document`);
+			alert(`loadComponent(): Could not find element ${targetElement} in current document`);
 			return;
 		}
 
