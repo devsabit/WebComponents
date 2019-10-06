@@ -11,30 +11,30 @@
 //	});
 //}
 
-export function PropOut(target: Object, name: string) {
-	Object.defineProperty(target, name, {
-		get: function () { return this["_" + name]; },
+export function PropOut(target: Object, propName: string) {
+	Object.defineProperty(target, propName, {
+		get: function () { return this["_" + propName]; },
 		set: function (value) {
-			console.log(`${this.constructor.name}.${name} = ${value}`);
-			this["_" + name] = value;
-			this.SetElementContent(name);
+			console.log(`${this.constructor.name}.${propName} = ${value}`);
+			this["_" + propName] = value;
+			this.SetElementContent(propName);
 		},
 		enumerable: true,
 		configurable: true
 	});
 }
 
-export function Attrib(target: Object, name: string) {
-	Object.defineProperty(target, name, {
+export function Attrib(target: Object, fieldName: string) {
+	Object.defineProperty(target, fieldName, {
 		get: function () {
-			const attribName: string = name.replace(/_/g, '-');
+			const attribName: string = fieldName.replace(/_/g, '-');
 			let value = (this as HTMLElement).getAttribute(attribName);
 			if (value == undefined)
 				console.error(`Could not find attribute ${attribName} on element ${this.TagName}`);
 			return value;
 		},
 		set: function (value: any) {
-			const attribName: string = name.replace(/_/g, '-');
+			const attribName: string = fieldName.replace(/_/g, '-');
 			console.log(`${this.constructor.name}.${attribName} = ${value}`);
 			(this as HTMLElement).setAttribute(attribName, value);
 		},
