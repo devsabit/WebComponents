@@ -1,5 +1,5 @@
 ﻿import BaseComponent from '../BaseComponent.js';
-import PropDecorator from '../PropDecorator.js';
+import { PropOut } from '../PropDecorator.js';
 
 export default class MyCounter extends BaseComponent {
 
@@ -10,7 +10,7 @@ export default class MyCounter extends BaseComponent {
 	//	super.SetElementContent("count");
 	//}
 
-	@PropDecorator.prop
+	@PropOut
 	public count: number = 123;
 
 	constructor() {

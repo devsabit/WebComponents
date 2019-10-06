@@ -1,5 +1,5 @@
 ﻿import BaseComponent from '../BaseComponent.js';
-import PropDecorator from '../PropDecorator.js';
+import { PropOut } from '../PropDecorator.js';
 
 export default class MyContent extends BaseComponent {
 
@@ -10,7 +10,7 @@ export default class MyContent extends BaseComponent {
 	//	super.SetElementContent("a");			// update html
 	//	super.SetElementContent("total");	// update html
 	//}
-	@PropDecorator.prop
+	@PropOut
 	public a: number = 1;
 
 	//private _b: number = 2;
@@ -20,7 +20,7 @@ export default class MyContent extends BaseComponent {
 	//	super.SetElementContent("b");			// update html
 	//	super.SetElementContent("total");	// update html
 	//}
-	@PropDecorator.prop
+	@PropOut
 	public b: number = 2;
 
 	public get total(): number { return this.a + this.b; }

@@ -1,20 +1,30 @@
-﻿// see https://html.spec.whatwg.org/multipage/custom-elements.html
+﻿// Web Components Spec
+// ===================
+// see https://html.spec.whatwg.org/multipage/custom-elements.html
 // and https://html.spec.whatwg.org/multipage/custom-elements.html#customelementregistry
-// good article: https://blog.usejournal.com/web-components-will-replace-your-frontend-framework-3b17a580831c
 //
-// and for bugs/shortcomings see:
-//	https://dev.to/webpadawan/beyond-the-polyfills-how-web-components-affect-us-today-3j0a
+// Web Components Articles
+// =======================
+// Good Overview article:		https://blog.usejournal.com/web-components-will-replace-your-frontend-framework-3b17a580831c
+// Google recommendations:	https://developers.google.com/web/fundamentals/web-components/best-practices
+// Bugs/shortcomings:				https://dev.to/webpadawan/beyond-the-polyfills-how-web-components-affect-us-today-3j0a
 //
-//	Web Components API functions
-//	============================
+//	Web Components registration API
+//	===============================
 //	window.customElements.define(name, constructor)
 //	window.customElements.define(name, constructor, { extends: baseLocalName })
 //	window.customElements.whenDefined(name)
 //	window.customElements.get(name)
 //	window.customElements.upgrade(root)
 //
-
-//import PropDecorator from './PropDecorator.js';
+//	Web Components lifecycle callbacks
+//	==================================
+//	connectedCallback()					called when added to DOM
+//	disconnectedCallback()			called when removed from DOM
+//	adoptedCallback()						called when moved to new document
+//	attributeChangedCallback()	called when observed attributes change
+//
+//	static get observedAttributes()		returns string array of observed attributes
 
 interface IPushState {
 	htmlTag: string,
@@ -98,7 +108,7 @@ export default class BaseComponent extends HTMLElement
 		else {
 			let msg = `Html component ${tagName} already exists, aborting ctor`;
 			alert(msg);	// this shouldn't be happening
-			console.log(msg);
+			console.error(msg);
 			return;
 		}
 
@@ -111,6 +121,7 @@ export default class BaseComponent extends HTMLElement
 	}
 
 	GetShadowElement<T extends HTMLElement>(id: string): Nullable<T> {
+		// when we initialise @PropOut properties, the static initialisation calls SetElementContent() -> GetShadowElement() before the ctor has created the shadow DOM
 		let shad = this.shadowRoot;
 		if (shad == null) {
 			alert('GetShadowElement(): this.shadowRoot is null')
@@ -127,6 +138,11 @@ export default class BaseComponent extends HTMLElement
 	}
 
 	public SetElementContent(propName: keyof this) {
+		if (this.ShadRoot == null) {
+			console.warn("SetElementContent(): ShadRoot is null, ignoring call");
+			return;
+		}
+
 		let elName = `wcf-${propName}`;
 		let elValue: string = String(this[propName]);
 
@@ -180,10 +196,12 @@ export default class BaseComponent extends HTMLElement
 		newVal: this[keyof this])
 	{
 		let msg = `DOM event => attributeChangedCallback(): Attribute name : ${custAttrName}, old value: ${oldVal}, new value: ${newVal}`;
-		alert(msg);
+		//alert(msg);
 		console.log(msg);
-		this[custAttrName] = newVal;
-		//this.setProp(custAttrName, newVal);
+
+		//error();
+		// code below calls SetHtmlElement which calls attributeChangedCallback() ??? recursive loop of death
+		//this[custAttrName] = newVal;
 	}
 
 	// not currently used by this class
@@ -256,7 +274,9 @@ export default class BaseComponent extends HTMLElement
 	private GetPropValue(propName: string): this[keyof this] {
 		let propKey = propName as keyof this;
 		if (!(propKey in this)) {
-			alert(`HTML Template Error: Property/field '${propKey}' does not exist in component ${this.constructor.name}`);
+			let msg = `HTML Template Error: Property/field '${propKey}' does not exist in component ${this.constructor.name}`;
+			console.error(msg);
+			alert(msg);
 			//return '<no such prop/field';
 		}
 		let propValue = this[propKey];
@@ -268,17 +288,28 @@ export default class BaseComponent extends HTMLElement
 		// Note matchAll not offically available until 2020, but allegedly can be polyfilled by TypeScript:
 		//	https://stackoverflow.com/questions/55499555/property-matchall-does-not-exist-on-type-string
 
-		// substitute all {{property}} items for <span id="field-n"> elements to allow one-way binding from Typescript properties to html elements
-		let interpolateHtml = htmlTemplate.replace(/{{\w+}}/gm, (key: string/*, value: any*/): string => {
+		// substitute all {{property}} items for <span id="wcf-property"> elements to allow one-way binding from Typescript properties to html elements
+		//let interpolateHtml = htmlTemplate.replace(/{{\w+}}/gm, (key: string/*, value: any*/): string => {
+		let interpolateHtml = htmlTemplate.replace(/{{[A-Za-z0-9_-]+}}/gm, (key: string/*, value: any*/): string => {
 			let propName: string = key.substring(2, key.length - 2);
+
+			// for custom attributes that are kebab-cased, change '-' to '_' so it will match with backing field
+			//if (propName.indexOf('-') >= 0)
+			propName = propName.replace(/-/g, '_');
+
 			let propValue = this.GetPropValue(propName);
 			let spanString = `<span id="wcf-${propName}">${propValue}</span>`;
 			return spanString;
 		});
 
 		// perform one-time substitution of all [[property]] items with current property value
-		interpolateHtml = interpolateHtml.replace(/\[\[\w+\]\]/gm, (key: string/*, value: any*/): string => {
+		interpolateHtml = interpolateHtml.replace(/\[\[[A-Za-z0-9_-]+\]\]/gm, (key: string/*, value: any*/): string => {
 			let propName: string = key.substring(2, key.length - 2);
+
+			// for custom attributes that are kebab-cased, change '-' to '_' so it will match with backing field
+			//if (propName.indexOf('-') >= 0)
+			propName = propName.replace(/-/g, '_');
+
 			let propValue = this.GetPropValue(propName);
 			let staticSub = `${propValue}`;
 			return staticSub;
@@ -350,7 +381,7 @@ export default class BaseComponent extends HTMLElement
 			let componentClass = window.customElements.get(htmlTag);
 			if (componentClass === undefined) {
 				let msg = `Component '${htmlTag}' not found. Check component is registered with customElements.define(...) in app.ts`;
-				console.log(msg);
+				console.error(msg);
 				alert(msg);
 				return;
 			}
@@ -395,7 +426,7 @@ export default class BaseComponent extends HTMLElement
 	protected onPopstate(ev: PopStateEvent) {
 		let ps: IPushState = ev.state;
 		if (ps == null) {
-			console.log('onPopstate(), pushstate is null');
+			console.warn('onPopstate(), pushstate is null');
 			return;
 		}
 		console.log(`Popstate event fired: ${JSON.stringify(ps)}`);

@@ -15,11 +15,20 @@ import Person from './Person.js';
 
 export default class MyInputForm extends BaseComponent {
 
-	constructor(private dto: Person) {
-		super('my-input-form');
+	public dto: Person = new Person();
+
+	constructor(htmlTag: string) {
+		//super('my-input-form');
+		super(htmlTag);
+
+		this.dto.forename = 'John';
+		this.dto.surname = 'Smith';
+		this.dto.dob = new Date('1995-12-31T23:59:59');
+		this.dto.age = 88;
+		this.dto.alive = true;
 
 		console.log('MyInputForm ctor(...) called');
-		console.log(`dto = ${dto}`);
+		console.log(`dto = ${this.dto}`);
 	}
 
 	protected async connectedCallback() {
@@ -27,13 +36,6 @@ export default class MyInputForm extends BaseComponent {
 
 		// set up DTO
 		console.log('MyInputForm.connectedCallback() called');
-
-		this.dto = new Person();
-		this.dto.forename = 'John';
-		this.dto.surname = 'Smith';
-		this.dto.dob = new Date('1995-12-31T23:59:59');
-		this.dto.age = 88;
-		this.dto.alive = true;
 
 		// copy DTO to HTML input form
 		this.copyDtoToFormA<Person>(this.dto);
@@ -69,57 +71,57 @@ export default class MyInputForm extends BaseComponent {
 	//	}
 	//}
 
-	public createDto<T>(C: { new(): T }): T[] {
-			return [new C(), new C()];
-	}
+	//public createDto<T>(C: { new(): T }): T[] {
+	//		return [new C(), new C()];
+	//}
 
-	protected clone1<T extends Record<string, any>>(obj: T): T
-	{
-		const objClone = {} as T[keyof T]; //Record<string, any>;
+	//protected clone1<T extends Record<string, any>>(obj: T): T
+	//{
+	//	const objClone = {} as T[keyof T]; //Record<string, any>;
 
-		const ownKeys = Reflect.ownKeys(obj).filter((o) => typeof o === 'string') as (keyof T)[];
-		for (const prop of ownKeys)
-		{
-			objClone[prop] = obj[prop];
-		}
+	//	const ownKeys = Reflect.ownKeys(obj).filter((o) => typeof o === 'string') as (keyof T)[];
+	//	for (const prop of ownKeys)
+	//	{
+	//		objClone[prop] = obj[prop];
+	//	}
 
-		return objClone as T;
-	}
+	//	return objClone as T;
+	//}
 
-	protected clone2<T extends Record<string, any>>(obj: T): T
-	{
-		const objClone = {} as T[keyof T];
+	//protected clone2<T extends Record<string, any>>(obj: T): T
+	//{
+	//	const objClone = {} as T[keyof T];
 
-		const ownKeys = Reflect.ownKeys(obj) as (keyof T)[];
-		for (const prop of ownKeys) {
-			objClone[prop] = obj[prop];
-		}
+	//	const ownKeys = Reflect.ownKeys(obj) as (keyof T)[];
+	//	for (const prop of ownKeys) {
+	//		objClone[prop] = obj[prop];
+	//	}
 
-		return objClone as T;
-	}
+	//	return objClone as T;
+	//}
 
-	protected clone3<T extends object>(obj: T): T
-	{
-		const objClone = {} as T;
+	//protected clone3<T extends object>(obj: T): T
+	//{
+	//	const objClone = {} as T;
 
-		const ownKeys = Reflect.ownKeys(obj) as (keyof T)[];
-		for (const prop of ownKeys) {
-			objClone[prop] = obj[prop];
-		}
+	//	const ownKeys = Reflect.ownKeys(obj) as (keyof T)[];
+	//	for (const prop of ownKeys) {
+	//		objClone[prop] = obj[prop];
+	//	}
 
-		return objClone as T;
-	}
+	//	return objClone as T;
+	//}
 
-	protected clone4<T extends object>(obj: T): T
-	{
-		const objClone = {} as T;
-		const ownKeys = Reflect.ownKeys(obj) as PropName<T>[];
-		for (const prop of ownKeys) {
-			objClone[prop] = obj[prop];
-		}
+	//protected clone4<T extends object>(obj: T): T
+	//{
+	//	const objClone = {} as T;
+	//	const ownKeys = Reflect.ownKeys(obj) as PropName<T>[];
+	//	for (const prop of ownKeys) {
+	//		objClone[prop] = obj[prop];
+	//	}
 
-		return objClone as T;
-	}
+	//	return objClone as T;
+	//}
 
 	//protected copyFormToDtoA<T extends object>(ldto: T): T {
 	protected copyFormToDtoA<T extends object>(idto: T): T {
