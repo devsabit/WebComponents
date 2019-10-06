@@ -18,7 +18,7 @@
 		"removeComments": true,
 		"sourceMap": true,
 		"target": "es6",
-		"module": "es6"	// amd for single file
+		"module": "es6"	// use AMD modules for single file
 		//"outFile": "./build.js"
 	},
 	"exclude": [

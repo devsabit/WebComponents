@@ -1,5 +1,5 @@
-﻿import BaseComponent from '../BaseComponent.js';
-import { Attrib } from '../PropDecorator.js';
+﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
+import { Attrib } from '../BaseComponent/PropDecorator.js';
 
 export default class MyHeader extends BaseComponent {
 

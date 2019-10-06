@@ -1,4 +1,4 @@
-﻿import BaseComponent from '../BaseComponent.js';
+﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
 
 export default class Alert extends BaseComponent {
 

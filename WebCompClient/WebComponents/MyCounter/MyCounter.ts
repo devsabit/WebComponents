@@ -1,5 +1,5 @@
-﻿import BaseComponent from '../BaseComponent.js';
-import { PropOut } from '../PropDecorator.js';
+﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
+import { PropOut } from '../BaseComponent/PropDecorator.js';
 
 export default class MyCounter extends BaseComponent {
 

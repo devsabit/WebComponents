@@ -72,8 +72,8 @@
     <Content Include="WebComponents\MyFooter\MyFooter.html" />
     <Content Include="WebComponents\MyHeader\MyHeader.css" />
     <Content Include="WebComponents\MyHeader\MyHeader.html" />
-    <Content Include="WebComponents\MyInputForm\MyInputForm.css" />
-    <Content Include="WebComponents\MyInputForm\MyInputForm.html" />
+    <Content Include="WebComponents\PersonForm\PersonForm.css" />
+    <Content Include="WebComponents\PersonForm\PersonForm.html" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -90,17 +90,19 @@
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="globals.d.ts" />
     <TypeScriptCompile Include="WebComponents\Alert\Alert.ts" />
+    <TypeScriptCompile Include="WebComponents\BaseComponent\BaseInputForm.ts" />
     <TypeScriptCompile Include="WebComponents\MyCounter\MyCounter.ts" />
-    <TypeScriptCompile Include="WebComponents\MyInputForm\MyInputForm.ts" />
-    <TypeScriptCompile Include="WebComponents\MyInputForm\Person.ts" />
-    <TypeScriptCompile Include="WebComponents\PropDecorator.ts" />
-    <TypeScriptCompile Include="WebComponents\Router.ts" />
-    <TypeScriptCompile Include="WebComponents\BaseComponent.ts" />
+    <TypeScriptCompile Include="WebComponents\PersonForm\PersonForm.ts" />
+    <TypeScriptCompile Include="WebComponents\PersonForm\Person.ts" />
+    <TypeScriptCompile Include="WebComponents\BaseComponent\PropDecorator.ts" />
+    <TypeScriptCompile Include="WebComponents\BaseComponent\Router.ts" />
+    <TypeScriptCompile Include="WebComponents\BaseComponent\BaseComponent.ts" />
     <TypeScriptCompile Include="WebComponents\HtmlPage\HtmlPage.ts" />
     <TypeScriptCompile Include="WebComponents\MyAside\MyAside.ts" />
     <TypeScriptCompile Include="WebComponents\MyContent\MyContent.ts" />
     <TypeScriptCompile Include="WebComponents\MyFooter\MyFooter.ts" />
     <TypeScriptCompile Include="WebComponents\MyHeader\MyHeader.ts" />
+    <TypeScriptCompile Include="WebComponents\BaseComponent\TemplateParser.ts" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

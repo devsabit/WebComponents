@@ -1,5 +1,4 @@
-﻿import BaseComponent from '../BaseComponent.js';
-import Person from './Person.js';
+﻿import BaseComponent from './BaseComponent.js';
 
 //interface IConstructor<T> {
 //	// default constructor
@@ -13,39 +12,41 @@ import Person from './Person.js';
 //	return new type();
 //}
 
-export default class MyInputForm extends BaseComponent {
+export default class BaseInputForm<T extends object> extends BaseComponent {
 
-	public dto: Person = new Person();
+	// derived class should create the concrete object
+	protected dto!: T; //= this.createDto<T>();
 
 	constructor(htmlTag: string) {
-		//super('my-input-form');
 		super(htmlTag);
 
-		this.dto.forename = 'John';
-		this.dto.surname = 'Smith';
-		this.dto.dob = new Date('1995-12-31T23:59:59');
-		this.dto.age = 88;
-		this.dto.alive = true;
-
 		console.log('MyInputForm ctor(...) called');
-		console.log(`dto = ${this.dto}`);
+		//console.log(`dto = ${this.dto}`);
 	}
+
+	//public createDto<T>(C: { new(): T }): T {
+	//	return new C();
+	//}
 
 	protected async connectedCallback() {
 		await super.connectedCallback();
 
 		// set up DTO
-		console.log('MyInputForm.connectedCallback() called');
+		console.log(`${this.constructor.name}.connectedCallback() called`);
 
 		// copy DTO to HTML input form
-		this.copyDtoToFormA<Person>(this.dto);
+		this.copyDtoToFormA<T>(this.dto);
 	}
 
-	public onSubmit() {
-		console.log('MyInputForm.onSubmit() called');
+	protected onSubmit() {
+		console.log(`${this.constructor.name}.onSubmit() called`);
+
 		// copy input form fields to DTO
-		let person = new Person();
-		this.dto = this.copyFormToDtoA<Person>(person);
+		//let person = new Person();
+		//this.dto = this.copyFormToDtoA<T>(person);
+
+		this.dto = this.copyFormToDtoA<T>(this.dto);
+
 		console.log(this.dto);
 	}
 
@@ -69,10 +70,6 @@ export default class MyInputForm extends BaseComponent {
 	//			alert(errMsg);
 	//			return errMsg;
 	//	}
-	//}
-
-	//public createDto<T>(C: { new(): T }): T[] {
-	//		return [new C(), new C()];
 	//}
 
 	//protected clone1<T extends Record<string, any>>(obj: T): T
@@ -126,7 +123,7 @@ export default class MyInputForm extends BaseComponent {
 	//protected copyFormToDtoA<T extends object>(ldto: T): T {
 	protected copyFormToDtoA<T extends object>(idto: T): T {
 
-	//protected copyFormToDtoA<T extends object>(ldto: { new(): T }): T {
+		//protected copyFormToDtoA<T extends object>(ldto: { new(): T }): T {
 		// copy all fields in input form to DTO
 
 		//this.createDto<T>(Person);
@@ -205,8 +202,7 @@ export default class MyInputForm extends BaseComponent {
 
 			let propValue = dto[propName];
 			let type = typeof propValue;
-			switch (typeof propValue)
-			{
+			switch (typeof propValue) {
 				case 'string': inputEl.value = propValue;
 					break;
 
