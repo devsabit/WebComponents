@@ -1,7 +1,10 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
 import { PropOut } from '../BaseComponent/PropDecorator.js';
+import { log } from '../BaseComponent/Logger.js';
 
 export default class MyContent extends BaseComponent {
+
+	public static tag = 'my-content';
 
 	//private _a: number = 1;
 	//get a(): number { return this._a; }
@@ -32,7 +35,7 @@ export default class MyContent extends BaseComponent {
 	}
 
 	constructor() {
-		super('my-content');
+		super();
 
 		// revocable<T extends object>(target: T, handler: ProxyHandler<T>)
 
@@ -59,24 +62,24 @@ export default class MyContent extends BaseComponent {
 
 	protected async connectedCallback() {
 		// note this may be called multiple times by DOM
-		console.log('sub: MyContent.connectedCallback() called');
+		log.info('sub: MyContent.connectedCallback() called');
 
 		// add events after html template has been loaded
 		await super.connectedCallback();	// wait till DOM has finished initialising
 
-		console.log('sub: MyContent.connectedCallback() base class completed (allegedly)');
+		log.info('sub: MyContent.connectedCallback() base class completed (allegedly)');
 	}
 
 	public increaseA(ev: Event) {
 		let el: HTMLInputElement = ev.currentTarget as HTMLInputElement;
+		log.event(`MyContent.increaseA() fired ${el}`);
 		this.a = el.valueAsNumber;
-		console.log(`increaseA(): ${el}`);
 	}
 
 	public increaseB(ev: Event) {
 		let el: HTMLInputElement = ev.currentTarget as HTMLInputElement;
+		log.event(`MyContent.increaseB() fired ${el}`);
 		this.b = el.valueAsNumber;
-		console.log(`increaseA: ${el}`);
 	}
-
 }
+customElements.define(MyContent.tag, MyContent);

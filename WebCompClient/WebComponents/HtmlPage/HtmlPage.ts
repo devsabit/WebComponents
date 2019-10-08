@@ -1,17 +1,19 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
+import { log } from '../BaseComponent/Logger.js';
 
 export default class HtmlPage extends BaseComponent {
 
+	public static tag = 'html-page';
 	public pageName: string = '';
 	public pageContent: string = '';
 
 	constructor() {
-		super('html-page');
+		super();
 	}
 
 	protected async connectedCallback() {
 		// note this will be called every time this component is inserted/reinserted into the DOM
-		console.log('sub: HtmlPage.connectedCallback() called');
+		log.info('sub: HtmlPage.connectedCallback() called');
 
 		// call base class and wait till complete
 		await super.connectedCallback();
@@ -27,6 +29,7 @@ export default class HtmlPage extends BaseComponent {
 		this.SetElementContent('pageName');
 		this.SetElementContent('pageContent');
 
-		console.log('sub: HtmlPage.connectedCallback() base class completed');
+		log.info('sub: HtmlPage.connectedCallback() base class completed');
 	}
 }
+customElements.define(HtmlPage.tag, HtmlPage);

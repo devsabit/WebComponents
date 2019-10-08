@@ -1,10 +1,12 @@
-﻿//export function Prop(target: Object, name: string)
+﻿import { log } from '../BaseComponent/Logger.js';
+
+//export function Prop(target: Object, name: string)
 //{
 //	Object.defineProperty(target, name, {
-//		get: function () { return this["_" + name]; },
+//		get: function () { return this['_' + name]; },
 //		set: function (value) {
-//			console.log(`${this.constructor.name}.${name} = ${value}`);
-//			this["_" + name] = value;
+//			log.info(`${this.constructor.name}.${name} = ${value}`);
+//			this['_' + name] = value;
 //		},
 //		enumerable: true,
 //		configurable: true
@@ -13,10 +15,10 @@
 
 export function PropOut(target: Object, propName: string) {
 	Object.defineProperty(target, propName, {
-		get: function () { return this["_" + propName]; },
+		get: function () { return this['_' + propName]; },
 		set: function (value) {
-			console.log(`${this.constructor.name}.${propName} = ${value}`);
-			this["_" + propName] = value;
+			log.info(`${this.constructor.name}.${propName} = ${value}`);
+			this['_' + propName] = value;
 			this.SetElementContent(propName);
 		},
 		enumerable: true,
@@ -30,12 +32,12 @@ export function Attrib(target: Object, fieldName: string) {
 			const attribName: string = fieldName.replace(/_/g, '-');
 			let value = (this as HTMLElement).getAttribute(attribName);
 			if (value == undefined)
-				console.error(`Could not find attribute ${attribName} on element ${this.TagName}`);
+				log.error(`Could not find attribute ${attribName} on element ${this.TagName}`);
 			return value;
 		},
 		set: function (value: any) {
 			const attribName: string = fieldName.replace(/_/g, '-');
-			console.log(`${this.constructor.name}.${attribName} = ${value}`);
+			log.info(`${this.constructor.name}.${attribName} = ${value}`);
 			(this as HTMLElement).setAttribute(attribName, value);
 		},
 		enumerable: true,

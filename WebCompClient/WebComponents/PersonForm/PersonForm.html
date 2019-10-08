@@ -1,15 +1,15 @@
 ﻿<link async rel="stylesheet" href="/WebComponents/PersonForm/PersonForm.css">
 
 <template id="person-form">
-	<form model="Person">
-		<label>Forename</label><input type="text" name="forename" id="wci-forename"><br>
-		<label>Surname</label><input type="text" name="surname" id="wci-surname"><br>
-		<label>DOB</label><input type="date" name="dob" id="wci-dob"><br>
-		<label>Age</label><input type="number" name="age" id="wci-age"><br>
+	<form>
+		<label>Forename</label><input type="text" name="forename"><br>
+		<label>Surname</label><input type="text" name="surname"><br>
+		<label>DOB</label><input type="date" name="dob"><br>
+		<label>Age</label><input type="number" name="age"><br>
 
 		<label>Alive?</label>
-		<label>Yes</label><input type="radio" name="AliveGroup" id="wci-alive">
-		<label>No</label><input type="radio" name="AliveGroup" id="wci-alive2"><br>
+		<label>Yes</label><input type="radio" name="alive">
+		<label>No</label><input type="radio" name="alive"><br>
 
 		<button type="button" @click="onSubmit" id="wcb-submit">Submit</button><br>
 	</form>

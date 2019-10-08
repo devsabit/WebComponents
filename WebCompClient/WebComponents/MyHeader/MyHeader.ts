@@ -1,7 +1,10 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
 import { Attrib } from '../BaseComponent/PropDecorator.js';
+//import { log } from '../BaseComponent/Logger.js';
 
 export default class MyHeader extends BaseComponent {
+
+	public static tag = 'my-header';
 
 	// web component observed attributes
 	static get observedAttributes() {
@@ -14,6 +17,7 @@ export default class MyHeader extends BaseComponent {
 
 	// ctor
 	constructor() {
-		super('my-header');
+		super();
 	}
 }
+customElements.define(MyHeader.tag, MyHeader);

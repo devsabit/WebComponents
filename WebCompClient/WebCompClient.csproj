@@ -91,6 +91,7 @@
     <TypeScriptCompile Include="globals.d.ts" />
     <TypeScriptCompile Include="WebComponents\Alert\Alert.ts" />
     <TypeScriptCompile Include="WebComponents\BaseComponent\BaseInputForm.ts" />
+    <TypeScriptCompile Include="WebComponents\BaseComponent\Logger.ts" />
     <TypeScriptCompile Include="WebComponents\MyCounter\MyCounter.ts" />
     <TypeScriptCompile Include="WebComponents\PersonForm\PersonForm.ts" />
     <TypeScriptCompile Include="WebComponents\PersonForm\Person.ts" />
@@ -110,6 +111,13 @@
   <ItemGroup>
     <Folder Include="Properties\" />
     <Folder Include="WebComponents\TestData\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

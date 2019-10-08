@@ -1,27 +1,25 @@
 ﻿import BaseInputForm from '../BaseComponent/BaseInputForm.js';
 import Person from './Person.js';
+import { log } from '../BaseComponent/Logger.js';
 
 export default class PersonForm extends BaseInputForm<Person> {
+	public static tag = 'person-form';
 
-	// DTO is declared in base class
+	// input form DTO is declared in base class BaseInputForm<T>
 	//protected dto: Person = new Person();
 
+	// ctor
 	constructor() {
-		console.log('PersonForm ctor(...) called');
-		super('person-form');
+		super();
 
 		this.dto = new Person();
-
-		console.log(`dto = ${this.dto}`);
+		log.debug(this.dto);
 	}
 
-	protected async connectedCallback() {
-		await super.connectedCallback();
-	}
-
-	protected onSubmit() {
-		super.onSubmit();
-		console.log('PersonForm.onSubmit() called');
-	}
+	//protected onSubmit() {
+	//	super.onSubmit();
+	//	log.info('PersonForm.onSubmit() called');
+	//}
 
 }
+customElements.define(PersonForm.tag, PersonForm);

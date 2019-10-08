@@ -1,4 +1,5 @@
 ﻿import BaseComponent from './BaseComponent.js';
+import { log } from '../BaseComponent/Logger.js';
 
 //interface IConstructor<T> {
 //	// default constructor
@@ -14,14 +15,15 @@
 
 export default class BaseInputForm<T extends object> extends BaseComponent {
 
-	// derived class should create the concrete object
+	protected static tag: string;// = "BaseInputForm<T> (not used)";
+
+	// derived class must create the concrete object
 	protected dto!: T; //= this.createDto<T>();
 
-	constructor(htmlTag: string) {
-		super(htmlTag);
+	constructor() {
+		super();
 
-		console.log('MyInputForm ctor(...) called');
-		//console.log(`dto = ${this.dto}`);
+		log.info(`BaseInputForm<T> (${this.constructor.name}) ctor called`);
 	}
 
 	//public createDto<T>(C: { new(): T }): T {
@@ -32,22 +34,21 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 		await super.connectedCallback();
 
 		// set up DTO
-		console.log(`${this.constructor.name}.connectedCallback() called`);
+		log.info(`${this.constructor.name}.connectedCallback() called`);
 
 		// copy DTO to HTML input form
 		this.copyDtoToFormA<T>(this.dto);
 	}
 
 	protected onSubmit() {
-		console.log(`${this.constructor.name}.onSubmit() called`);
+		log.event(`${this.constructor.name}.onSubmit() called`);
 
 		// copy input form fields to DTO
 		//let person = new Person();
 		//this.dto = this.copyFormToDtoA<T>(person);
 
 		this.dto = this.copyFormToDtoA<T>(this.dto);
-
-		console.log(this.dto);
+		log.debug(this.dto);
 	}
 
 	//private convertStringToType<T>(prop: PropValue<T>, stringProp: string): boolean | number | string | Date {
@@ -139,7 +140,7 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 			let elId = `wci-${propName}`;
 			let inputEl: Nullable<HTMLInputElement> = this.GetShadowElement<HTMLInputElement>(elId);
 			if (inputEl == null) {
-				alert(`Input element ${inputEl} not found in input form`);
+				log.error(`Input element ${inputEl} not found in input form`);
 				continue;
 			}
 
@@ -170,14 +171,14 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 					if (propValue instanceof Date)
 						(odto[propName] as any) = inputEl.valueAsDate;
 					else
-						alert('copyDtoToFormA() - non-Date object encountered');
+						log.error('copyDtoToFormA() - non-Date object encountered');
 					break;
 
 				case 'boolean': (odto[propName] as any) = inputEl.checked;
 					break;
 
 				default:
-					alert(`copyDtoToFormA() - hit default in switch, type was '${typeName}'`);
+					log.error(`copyDtoToFormA() - hit default in switch, type was '${typeName}'`);
 			}
 
 		}
@@ -196,7 +197,7 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 			let elId = `wci-${propName}`;
 			let inputEl: Nullable<HTMLInputElement> = this.GetShadowElement<HTMLInputElement>(elId);
 			if (inputEl == null) {
-				alert(`Input element ${inputEl} not found in input form`);
+				log.error(`Input element ${inputEl} not found in input form`);
 				continue;
 			}
 
@@ -213,16 +214,17 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 					if (propValue instanceof Date)
 						inputEl.valueAsDate = propValue;
 					else
-						alert('copyDtoToFormA() - non-Date object encountered');
+						log.error('copyDtoToFormA() - non-Date object encountered');
 					break;
 
 				case 'boolean': inputEl.checked = propValue;
 					break;
 
 				default:
-					alert(`copyDtoToFormA() - hit default in switch, type was '${type}'`);
+					log.error(`copyDtoToFormA() - hit default in switch, type was '${type}'`);
 			}
 		}
 	}
 
 }
+//customElements.define(BaseInputForm<T>.tag, BaseInputForm<T>);
