@@ -143,7 +143,7 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 			let attribName = this.getDataAttribWci(propName as keyof this);
 			let inputEls = this.getShadowElementsByAttribName<HTMLInputElement>(attribName);
 			assert(inputEls.length === 1, `copyFormToDtoA(): Expected to find single <input> element, actually found ${inputEls.length} elements`);
-			log.highlight(`prop = ${propName}, dataAttrib = ${attribName}, ${inputEls.length}`);
+			log.debug(`prop = ${propName}, dataAttrib = ${attribName}, ${inputEls.length}`);
 			let inputEl = inputEls[0];
 
 			// Note the difference runtime and compile time typeof usage:
@@ -165,7 +165,9 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 						log.error('copyDtoToFormA() - non-Date object encountered');
 					break;
 
-				case 'boolean': (odto[propName] as any) = inputEl.checked;
+				case 'boolean':
+					let boolVal: boolean = (inputEl.value === 'true' && inputEl.checked) || (inputEl.value === 'false' && !inputEl.checked);
+					(odto[propName] as any) = boolVal;
 					break;
 
 				default:
@@ -192,7 +194,7 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 			if (inputEls.length == undefined)
 				continue;
 			assert(inputEls.length === 1, `copyDtoToFormA(): Expected to find single <input> element, actually found ${inputEls.length} elements`);
-			log.highlight(`prop = ${propName}, dataAttrib = ${attribName}, ${inputEls.length}`);
+			log.debug(`prop = ${propName}, dataAttrib = ${attribName}, ${inputEls.length}`);
 			let inputEl = inputEls[0];
 
 			let propValue = dto[propName];
@@ -211,7 +213,12 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 						log.error('copyDtoToFormA() - non-Date object encountered');
 					break;
 
-				case 'boolean': inputEl.checked = propValue;
+				case 'boolean':
+					// for boolean there will be two radio buttons with values true and false
+					// if first radio returns true, then propValue is used as is
+					// if first radio returns true, then propValue logic is inverted
+					let firstRadioTrue: boolean = (inputEl.value === 'true');
+					inputEl.checked = firstRadioTrue ? propValue : !propValue;
 					break;
 
 				default:
@@ -221,4 +228,3 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 	}
 
 }
-//customElements.define(BaseInputForm<T>.tag, BaseInputForm<T>);

@@ -230,5 +230,4 @@ export default class BaseComponent extends HTMLElement
 	public loadComponent(htmlTag: string, targetElement: string, slug: string, setState: boolean = true) {
 		BaseComponent.router.loadComponent(htmlTag, targetElement, slug, setState);
 	}
-
 }
