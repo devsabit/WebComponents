@@ -3,12 +3,12 @@
 
 	<aside>
 		<ul>
-			<li id="aside1" @click="this.loadComponent('my-content', 'main', '')">Home</li>
-			<li id="aside2" @click="this.loadComponent('html-page', 'main', 'news')">News</li>
-			<li id="aside3" @click="this.loadComponent('html-page', 'main', 'contact')">Contact</li>
-			<li id="aside4" @click="this.loadComponent('html-page', 'main', 'about')">About</li>
-			<li id="aside5" @click="this.loadComponent('my-counter', 'main', 'counter')">Counter</li>
-			<li id="aside6" @click="this.loadComponent('person-form', 'main', 'input')">Person Form</li>
+			<li @click="this.loadComponent('my-content', 'main', '')" @change="alert('handler called')">Home</li>
+			<li @click="this.loadComponent('html-page', 'main', 'news')" @mouseover="console.log('mouseover detected')">News</li>
+			<li @click="this.loadComponent('html-page', 'main', 'contact')">Contact</li>
+			<li @click="this.loadComponent('html-page', 'main', 'about')">About</li>
+			<li @click="this.loadComponent('my-counter', 'main', 'counter')">Counter</li>
+			<li @click="this.loadComponent('person-form', 'main', 'input')">Person Form</li>
 		</ul>
 	</aside>
 </template>

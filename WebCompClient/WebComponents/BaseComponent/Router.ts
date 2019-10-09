@@ -1,5 +1,5 @@
 ﻿import BaseComponent from './BaseComponent.js';
-import { log } from '../BaseComponent/Logger.js';
+import { log, assert } from '../BaseComponent/Logger.js';
 
 interface IPushState {
 	htmlTag: string,
@@ -39,6 +39,7 @@ export class Router {
 
 		this.defaultTag = 'html-page';
 		this.defaultDiv = 'main';
+		assert(this.defaultTag != undefined);		// demo of TS 3.7 assertion function
 
 		//this.routes[] = [
 		//	{ tag: 'my-content', div: 'main', slug: '/' },

@@ -1,5 +1,5 @@
 ﻿import BaseComponent from './BaseComponent.js';
-import { log } from '../BaseComponent/Logger.js';
+import { log, assert } from '../BaseComponent/Logger.js';
 
 //interface IConstructor<T> {
 //	// default constructor
@@ -136,24 +136,15 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 		const ownKeys = Reflect.ownKeys(idto) as PropName<T>[];
 		//const ownKeys = Reflect.ownKeys(ldto) as (keyof T)[];
 		for (const propName of ownKeys) {
-
-			let elId = `wci-${propName}`;
-			let inputEl: Nullable<HTMLInputElement> = this.GetShadowElement<HTMLInputElement>(elId);
-			if (inputEl == null) {
-				log.error(`Input element ${inputEl} not found in input form`);
-				continue;
-			}
-
-			//let formValue: string = inputEl.value;
-			//let propValue = ldto[propName];
-			//(ldto[propName] as PropValue<Person>) = this.convertStringToType<Person>(ldto[propName], formValue);
-
 			let propKey = propName as PropName<T>;
-
-			//const obj = {} as Record<string, any>;
-			//obj[propName] = inputEl.value;
-
 			let propValue = idto[propKey];
+
+			//let elId = `wci-${propName}`;
+			let attribName = this.getDataAttribWci(propName as keyof this);
+			let inputEls = this.getShadowElementsByAttribName<HTMLInputElement>(attribName);
+			assert(inputEls.length === 1, `copyFormToDtoA(): Expected to find single <input> element, actually found ${inputEls.length} elements`);
+			log.highlight(`prop = ${propName}, dataAttrib = ${attribName}, ${inputEls.length}`);
+			let inputEl = inputEls[0];
 
 			// Note the difference runtime and compile time typeof usage:
 			// see https://stackoverflow.com/questions/51528780/typescript-check-typeof-against-custom-type
@@ -194,12 +185,15 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 	protected copyDtoToFormA<T extends object>(dto: T) {
 		const ownKeys = Reflect.ownKeys(dto) as (keyof T)[];
 		for (const propName of ownKeys) {
-			let elId = `wci-${propName}`;
-			let inputEl: Nullable<HTMLInputElement> = this.GetShadowElement<HTMLInputElement>(elId);
-			if (inputEl == null) {
-				log.error(`Input element ${inputEl} not found in input form`);
+			//let elId = `wci-${propName}`;
+			//let inputEl: Nullable<HTMLInputElement> = this.GetShadowElementById<HTMLInputElement>(elId);
+			let attribName = this.getDataAttribWci(propName as keyof this);
+			let inputEls = this.getShadowElementsByAttribName<HTMLInputElement>(attribName);
+			if (inputEls.length == undefined)
 				continue;
-			}
+			assert(inputEls.length === 1, `copyDtoToFormA(): Expected to find single <input> element, actually found ${inputEls.length} elements`);
+			log.highlight(`prop = ${propName}, dataAttrib = ${attribName}, ${inputEls.length}`);
+			let inputEl = inputEls[0];
 
 			let propValue = dto[propName];
 			let type = typeof propValue;

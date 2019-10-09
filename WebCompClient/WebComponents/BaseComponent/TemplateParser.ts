@@ -1,5 +1,5 @@
 ﻿import BaseComponent from './BaseComponent.js';
-import { log } from '../BaseComponent/Logger.js';
+import { log, assert } from '../BaseComponent/Logger.js';
 
 interface Ies6StringTemplate {
 	staticStrings: ReadonlyArray<string>,
@@ -8,6 +8,10 @@ interface Ies6StringTemplate {
 
 export default class TemplateParser
 {
+	// fields and props
+	private eventCount: number = 1;
+	private inputCountMap = new Map<string, number>();
+
 	constructor(private component: BaseComponent) {
 	}
 
@@ -18,13 +22,16 @@ export default class TemplateParser
 		return regexFunctionName.test(code);
 	}
 
-	private AddEventHandler(id: string, eventName: string, code: string) {
+	private AddEventHandler(attribName: string, eventName: string, code: string) {
 		// find the html element to attach the handler to
-		let el = this.component.GetShadowElement<HTMLElement>(id);
-		if (el == null) {
-			log.error(`BaseComponent.AddEventHandler(): HTML element ${id} was not found within component ${this.component.TagName}`);
+		//let el = this.component.GetShadowElementById<HTMLElement>(id);
+		let els = this.component.getShadowElementsByAttribName(attribName);
+		if (els.length == undefined) {
+			log.error(`BaseComponent.AddEventHandler(): HTML element with attrib ${attribName} was not found within component ${this.component.TagName}`);
 			return;
 		}
+		assert(els.length == 1);
+		let el = els[0];
 
 		// check to see if code specifies a function name
 		if (this.isFunctionName(code)) {
@@ -35,96 +42,133 @@ export default class TemplateParser
 		else {
 			// not a JS function name, create anonymous handler and add specified code
 			let componentName = this.component.constructor.name;
-			//let newAnonFn = new Function("event", `log.event('@${event} anon handler fired (${componentName})'); ${code}`);
-			let newAnonFn = new Function("event", `console.log('@${event} anon handler fired (${componentName})'); ${code}`);
+			let newAnonFn = new Function("event", `console.log('@${event} anon handler fired (${componentName})'); ${code}`) as EventListener;
 			el.addEventListener(eventName, newAnonFn.bind(this.component));
 		}
 	}
 
-	private ParseEvent(element: string) {
+	private getDataAttrib(element: string): string {
+		// find data-wc?- attribute on element and return
+		// <input> element will have a data-wci- prefix
+		// other elements with events will have a data-wce- prefix
+		let dataAttrib = element.match(/data-wc.-\w+/);
+		assert(dataAttrib != null);
+		return dataAttrib[0];
+	}
+
+	private parseEventsInElement(element: string) {
 		//
 		// input element format:
-		//	<input type="number" value="[[a]]" id="input-a" @change="this.a = el.value">
+		//	<input type="number" value="[[a]]" name="a" @change="...">
 		//
 		// event handler format:
 		//	<... @...="..." >
 		//
-		let idEnd = 0;
-		let idStart = element.indexOf('id=') + 4;
-		if (idStart != -1) {
-			idEnd = element.indexOf('"', idStart);
+		//let idEnd = 0;
+		//let idStart = element.indexOf('id=') + 4;
+		//if (idStart != -1) {
+		//	idEnd = element.indexOf('"', idStart);
+		//}
+
+		const dataAttrib = this.getDataAttrib(element);
+
+		let events: string[] = this.getEventsInElement(element);
+		for (let event of events)
+		{
+			let eventName = this.getAttribName(event.slice(1));	// gets click from @click="this.count++"
+			let code = this.getAttribValue(event);							// gets this.count++ from @click="this.count++"
+
+			this.AddEventHandler(dataAttrib, eventName, code);
 		}
-		let eventStart = element.indexOf('@') + 1;
-		let eventEnd = element.indexOf('"', eventStart) - 1;
-
-		let codeStart = eventEnd + 2;
-		let codeEnd = element.indexOf('"', codeStart);
-
-		let id: string = element.substring(idStart, idEnd);
-		let event: string = element.substring(eventStart, eventEnd);
-		let code: string = element.substring(codeStart, codeEnd);
-
-		this.AddEventHandler(id, event, code);
 	}
 
 	private ParseAndAttachEvents(htmlTemplate: string) {
 		// parse for @EventName event handlers
 		htmlTemplate.replace(/<.+@.+>/gm, (key: string/*, value: any*/): string => {
-			this.ParseEvent(key);
+			this.parseEventsInElement(key);
 			return '';	// not interested in result
 		});
 	}
 
 	private getAttribValue(attribNameValue: string): string {
 		// extracts value from name="value" string
-		let quote1 = attribNameValue.indexOf('"');
-		let quote2 = attribNameValue.lastIndexOf('"');
-		if (quote1 < 0 || quote2 < 0) {
-			log.error(`Can't find both escaping double quotes for attribute ${attribNameValue} in component ${this.component.TagName}`);
-			return '<error - not found>';
-		}
+		let value = attribNameValue.match(/"[^"]*"/);
+		assert(value != null);
+		return value[0].slice(1, -1);	// remove quotes from match
 
-		let attribValue = attribNameValue.substring(quote1 + 1, quote2);
-		return attribValue;
+		//let quote1 = attribNameValue.indexOf('"');
+		//let quote2 = attribNameValue.lastIndexOf('"');
+		//if (quote1 < 0 || quote2 < 0) {
+		//	log.error(`Can't find both escaping double quotes for attribute ${attribNameValue} in component ${this.component.TagName}`);
+		//	return '<error - not found>';
+		//}
+
+		//let attribValue = attribNameValue.substring(quote1 + 1, quote2);
+		//return attribValue;
+	}
+
+	private getAttribName(attribNameValue: string): string {
+		// extracts name from name="value" string
+		let name = attribNameValue.match(/[^=]+=/);
+		assert(name != null);
+		return name[0].slice(0, -1);	// remove trailing = sign
 	}
 
 	private ParseInput(inputElement: string): string {
 		log.info(`Parsing <input> element: ${inputElement}`);
 		let names = this.getNameAttribs(inputElement);
-		log.debug(`Found ${names.length} name attributes`);
-		if (names.length === 0) {
-			log.error(`HTML template parsing error in component ${this.component.TagName}. Missing name attribute in ${inputElement}`);
-			return inputElement;	// give up
-		}
-		if (names.length > 1) {
-			log.error(`HTML template parsing error in component ${this.component.TagName}. Duplicate name attribute(s) specified in ${inputElement}`);
-			return inputElement;	// give up
-		}
+		if (names.length !== 1)
+			return inputElement;	// give up, errors will be reported by getNameAttribs()
 
-		let ids = this.getIdAttribs(inputElement);
-		log.debug(`Found ${ids.length} ids attributes`);
+		// append data attribute data-wci-{prop}n to input field
+		let name = this.getAttribValue(names[0]) as keyof BaseComponent;	// convert from name="age" to: age
+		let dataAttrib = this.component.getDataAttribWci(name);						// convert to input data attribute: data-wci-age
 
-		if (ids.length > 1) {
-			log.error(`HTML template parsing error in component ${this.component.TagName}. Duplicate id attribute(s) specified in ${inputElement}`);
-			return inputElement;	// give up
-		}
+		// if we have radio buttons, multiple input fields will exist with the same name attribute, so need to give different data-wci- values
+		let inputFieldCount: number|undefined = this.inputCountMap.get(dataAttrib);
+		if (inputFieldCount == undefined)
+			inputFieldCount = 1;
+		let countString = (inputFieldCount === 1) ? '' : inputFieldCount.toString();
+		this.inputCountMap.set(dataAttrib, ++inputFieldCount);
 
-		// should have exactly 1 name attrib and 0 or 1 id attribs
-		if (ids.length === 0) {
-			let id = `id="wci-${this.getAttribValue(names[0])}"`;	// generate id from name
-			log.info(`Automatically appending ${id} to following <input> element:`);
-			log.debug(inputElement);
-			return inputElement.slice(0, -1) + ` ${id}>`;
-		}
-
-		// return untouched (already has name + id specified)
-		return inputElement;
+		// if we have duplicate name fields, append number to 2nd+ occurrences
+		let dataAttribName = `${dataAttrib}${countString}`;
+		return inputElement.slice(0, -1) + ` ${dataAttribName}>`;							// append to input element
 	}
 
 	private parseInputElements(htmlTemplate: string): string {
 		// parse <input ...> elements and add id elements where required (requires non-greedy match, i.e. stop after first '>')
-		let result = htmlTemplate.replace(/<input[^>]+>/gm, (key: string): string => {
-			return this.ParseInput(key);
+		let result = htmlTemplate.replace(/<input[^>]+>/gm, (key: string): string => this.ParseInput(key));
+		return result;
+	}
+
+	private getEventsInElement(element: string) : string[]
+	{
+		// returns array of events in format @event="handling code or function name"
+		let eventsFounds = element.match(/@[a-z]+[^=]*=[^"]*"[^"]+"/g);
+		assert(eventsFounds != null);	// only elements with events get passed in
+		return eventsFounds;
+	}
+
+	private ParseOther(element: string): string {
+		// skip input elements, they have already been processed by parseInputElements()
+		if (element.startsWith('<input'))
+			return element;
+
+		log.info(`Parsing non-input element: ${element}`);
+
+		// append data attribute data-wce-{event name}{eventCount} to field
+		let firstEvent = this.getEventsInElement(element)[0];
+		let eventName = this.getAttribName(firstEvent.slice(1));
+		let dataAttrib = this.component.getDataAttribWce(eventName as keyof BaseComponent);
+		let eventDataAttrib = `${dataAttrib}${this.eventCount++}`;
+		return element.slice(0, -1) + ` ${eventDataAttrib}>`;		// append to input element
+	}
+
+	private parseOtherElements(htmlTemplate: string): string {
+		// parse <xxx ...> elements and add data-wce-xxx attrib to any element with @<event> specified
+		let result = htmlTemplate.replace(/<[^>]+@[^>]+>/gm, (key: string): string => {
+			return this.ParseOther(key);
 		});
 
 		return result;
@@ -134,7 +178,7 @@ export default class TemplateParser
 		return kebab.replace(/-/g, '_');
 	}
 
-	private extractPropName(propWithHandlerbars: string): string {
+	private removeHandlebars(propWithHandlerbars: string): string {
 		let propName = propWithHandlerbars.slice(2, -2);
 		propName = this.deKebab(propName);
 		return propName;
@@ -160,18 +204,24 @@ export default class TemplateParser
 	private parseHandlerbar(htmlIn: string, regexTarget: RegExp, es6Template: Ies6StringTemplate) {
 		let htmlOut = htmlIn.replace(regexTarget, (key: string): string =>
 		{
-			// [1]	`<span id="wcf-${propName}">${propValue}</span>`;
+			// [1]	`<span data-wco-${propName}>${propValue}</span>`;
 			// [2]	`${propValue}`
-			let propName: string = this.extractPropName(key);
+			let propName: string = this.removeHandlebars(key);
+			let dataAttrib: string = this.component.getDataAttribWco(propName as keyof BaseComponent);
 			let propValue: string = this.component.GetPropValue(propName) as string;
 			let actualValues: string[] = [];
 
-			// replace placeholder with real value
+			// replace es6 template placeholder with real value
 			let hasPropName: boolean = es6Template.templateValues.indexOf('{propName}') >= 0;
 			if (hasPropName)
 				actualValues.push(propName);
 
-			// replace placeholder with real value
+			// replace es6 template placeholder with real value
+			let hasDataAttrib: boolean = es6Template.templateValues.indexOf('{dataAttrib}') >= 0;
+			if (hasDataAttrib)
+				actualValues.push(dataAttrib);
+
+			// replace es6 template placeholder with real value
 			let hasPropValue: boolean = es6Template.templateValues.indexOf('{propValue}') >= 0;
 			if (hasPropValue)
 				actualValues.push(propValue);
@@ -189,9 +239,12 @@ export default class TemplateParser
 	}
 
 	private replaceOneWayHandlerbars(htmlIn: string): string {
-		let propName = '{propName}';
+		//let propName = '{propName}';
+		let dataAttrib = '{dataAttrib}';
 		let propValue = '{propValue}';
-		let htmlOut = this.parseHandlerbar(htmlIn, /{{[A-Za-z0-9_-]+}}/gm, this.parseEs6Template`<span id="wcf-${propName}">${propValue}</span>`);
+
+		let htmlOut = this.parseHandlerbar(htmlIn, /{{[A-Za-z0-9_-]+}}/gm, this.parseEs6Template`<span ${dataAttrib}>${propValue}</span>`);
+
 		return htmlOut;
 	}
 
@@ -207,7 +260,7 @@ export default class TemplateParser
 	//private runTests() {
 	//	let propName = '{propName}';
 	//	let propValue = '{propValue}';
-	//	let es6Template = this.parseEs6Template`<span id="wcf-${propName}">${propValue}</span>`;
+	//	let es6Template = this.parseEs6Template`<span id="wco-${propName}">${propValue}</span>`;
 
 	//	propName = 'copyright';
 	//	propValue = '(c) 2019 Acme Ltd';
@@ -243,10 +296,10 @@ export default class TemplateParser
 		// replace [[field]] with ${this.field}
 		parsedHtml = this.replaceOneTimeHandlerbars(parsedHtml);
 
-		// replace {{field}} with <span id="wcf-<fieldName">${this.field}}</span>
+		// replace {{field}} with <span data-wco-<fieldName>${this.field}</span>
 		parsedHtml = this.replaceOneWayHandlerbars(parsedHtml);
 
-		// substitute all {{property}} items for <span id="wcf-property"> elements to allow one-way binding from Typescript properties to html elements
+		// substitute all {{property}} items for <span id="wco-property"> elements to allow one-way binding from Typescript properties to html elements
 		//interpolateHtml = interpolateHtml.replace(/{{[A-Za-z0-9_-]+}}/gm, (key: string/*, value: any*/): string => {
 		//	let propName: string = key.substring(2, key.length - 2);
 
@@ -254,7 +307,7 @@ export default class TemplateParser
 		//	propName = propName.replace(/-/g, '_');
 
 		//	let propValue = this.component.GetPropValue(propName);
-		//	let spanString = `<span id="wcf-${propName}">${propValue}</span>`;
+		//	let spanString = `<span id="wco-${propName}">${propValue}</span>`;
 		//	return spanString;
 		//});
 
@@ -270,11 +323,14 @@ export default class TemplateParser
 		//	return staticSub;
 		//});
 
-		// parse <input> elments and add id attribs where necessary
+		// parse <input> elments and add data-wci-... attribs to all inputs
 		parsedHtml = this.parseInputElements(parsedHtml);
 
+		// parse all other elements and add data-wci-... attribs to any elements with event(s)
+		parsedHtml = this.parseOtherElements(parsedHtml);
+
 		log.info(`Template parsing completed for component ${this.component.TagName}:`);
-		log.debug(parsedHtml);
+		log.template(parsedHtml);
 		return parsedHtml;
 	}
 
@@ -338,14 +394,21 @@ export default class TemplateParser
 		this.ParseAndAttachEvents(template.innerHTML);
 	}
 
-	private getNameAttribs(inputEl: string): string[] {
+	private getNameAttribs(htmlEl: string): string[] {
 		// Nulish coalescing requires TypeScript 3.7
-		return inputEl.match(/name="[^"]+"/g) ?? [];
+		let names: string[] = htmlEl.match(/name="[^"]+"/g) ?? [];
+		log.debug(`Found ${names.length} name attributes in element ${htmlEl}`);
+		if (names.length === 0)
+			log.error(`HTML template parsing error in component ${this.component.TagName}. Missing name attribute in ${htmlEl}`);
+		if (names.length > 1)
+			log.error(`HTML template parsing error in component ${this.component.TagName}. Duplicate name attribute(s) specified in ${htmlEl}`);
+
+		return names;
 	}
 
-	private getIdAttribs(inputEl: string): string[] {
-		// Nulish coalescing requires TypeScript 3.7
-		return inputEl.match(/id="[^"]+"/g) ?? [];
-	}
+	//private getIdAttribs(inputEl: string): string[] {
+	//	// Nulish coalescing requires TypeScript 3.7
+	//	return inputEl.match(/id="[^"]+"/g) ?? [];
+	//}
 
 }

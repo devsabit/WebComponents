@@ -96,7 +96,11 @@ export default class BaseComponent extends HTMLElement
 
 	public getFunctionByName(funcName: string): EventListener {
 		let funcKey = funcName as keyof this;
-		return this[funcKey] as unknown as EventListener;
+		let fn = this[funcKey];
+		if (fn == undefined) {
+			log.error(`Function '${funcName}' specified within html template for component '${this.constructor.name}' does not exist. Have you forgotten to add it to the component class?`);
+		}
+		return fn as unknown as EventListener;
 	}
 
 	public GetPropValue(propName: string): this[keyof this] {
@@ -109,22 +113,50 @@ export default class BaseComponent extends HTMLElement
 		return propValue;
 	}
 
-	GetShadowElement<T extends HTMLElement>(id: string): Nullable<T> {
-		// when we initialise @PropOut properties, the static initialisation calls SetElementContent() -> GetShadowElement() before the ctor has created the shadow DOM
+	public getDataAttribWco(propName: keyof this): string {
+		return `data-wco-${propName}`;
+	}
+
+	public getDataAttribWci(propName: keyof this): string {
+		return `data-wci-${propName}`;
+	}
+
+	public getDataAttribWce(propName: string): string {
+		return `data-wce-${propName}`;
+	}
+
+	public getShadowElementsByAttribName<T extends HTMLElement>(attribName: string): NodeListOf<T> {
 		let shad = this.shadowRoot;
 		if (shad == null) {
 			log.error('GetShadowElement(): this.shadowRoot is null');
-			return null;
+			return {} as NodeListOf<T>;
 		}
 
-		let el = shad.querySelector<T>(`#${id}`);
-		if (el == null) {
-			log.error(`GetShadowElement(): element with id ${id} not found`);
-			return null;
+		let elems = shad.querySelectorAll<T>(`[${attribName}]`);
+		if (elems == null) {
+			log.error(`GetShadowElement(): element with attribute ${attribName} not found`);
+			return {} as NodeListOf<T>;
 		}
 
-		return el;
+		return elems;
 	}
+
+	//GetShadowElementById<T extends HTMLElement>(id: string): Nullable<T> {
+	//	// when we initialise @PropOut properties, the static initialisation calls SetElementContent() -> GetShadowElement() before the ctor has created the shadow DOM
+	//	let shad = this.shadowRoot;
+	//	if (shad == null) {
+	//		log.error('GetShadowElement(): this.shadowRoot is null');
+	//		return null;
+	//	}
+
+	//	let el = shad.querySelector<T>(`#${id}`);
+	//	if (el == null) {
+	//		log.error(`GetShadowElement(): element with id ${id} not found`);
+	//		return null;
+	//	}
+
+	//	return el;
+	//}
 
 	public SetElementContent(propName: keyof this) {
 		if (this.ShadRoot == null) {
@@ -132,14 +164,16 @@ export default class BaseComponent extends HTMLElement
 			return;
 		}
 
-		let elName = `wcf-${propName}`;
-		let elValue: string = String(this[propName]);
+		let attribName = this.getDataAttribWco(propName);
+		let propValue: string = String(this[propName]);
 
-		let el = this.GetShadowElement<HTMLElement>(elName);
-		if (el == null)
-			log.error(`SetElementContent(): Could not find element ${elName} inside component ${this.constructor.name}`);
-		else
-			el.innerHTML = elValue;
+		let elems = this.getShadowElementsByAttribName(attribName);
+		if (elems == null || elems.length === 0)
+			log.error(`SetElementContent(): Could not find element with attribute ${attribName} inside component ${this.constructor.name}`);
+		else {
+			for (let el of elems)
+				el.innerHTML = propValue;
+		}
 	}
 
 	// DOM element loaded event
