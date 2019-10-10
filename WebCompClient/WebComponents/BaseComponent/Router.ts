@@ -16,15 +16,15 @@ export class Router {
 	// fields
 	public Slug: string = '';
 	public DefaultTag: string = '';
-	public DefaultDiv: string = '';
+	public DefaultParent: string = '';
 
 	private _components: Array<IComponent>;
 	//private routes: Map<string, IComponent> = new Map<string, IComponent>();
 
 	// ctor
 	constructor() {
-		this.DefaultDiv = 'main';
 		this.DefaultTag = 'html-page';
+		this.DefaultParent = 'main';
 
 		// these routes are only required for non-prerendered SPA sites that rely on 404 errors redirecting to index.html page
 		// when this happens, we need to present the correct page state for whatever url has been entered into the browser
@@ -44,11 +44,24 @@ export class Router {
 		log.highlight(`Router initialised, slug=${this.Slug}`);
 	}
 
+	public findRoute(slug: string): IRoute {
+		let comp: IComponent|undefined = this._components.find(c => c.slug === slug);
+		if (comp == null) {
+			// not found, so look for default route '*'
+			comp = this._components.find(c => c.slug === '*');
+			assert(comp != null, 'Oh no!');
+		}
+		let route: IRoute = { slug: comp.slug, tag: comp.tag, parent: comp.parent };
+		log.highlight(`findRoute(): Route found was:`);
+		log.debug(route);
+		return route;
+	}
+
 	private componentExists(target: IRoute): IComponent {
 		let comps = this._components.filter(c => c.tag === target.tag && c.parent === target.parent);
 		assert(comps?.length >= 0 && comps?.length <= 1, `componentExists(), comps=${comps.length}`);
 		return comps?.[0];
-}
+	}
 
 	public addComponent(newComponent: IComponent) {
 		// store component info in map so we can retrieve it later
@@ -61,7 +74,7 @@ export class Router {
 		}
 		else {
 			// in route map, but not yet created, so instance will be null
-			assert(existingComponent.instance == null, 'Eh?');
+			assert(existingComponent.instance == null, 'Request to create component that already exists in map with non-null insatnce??? 404 perhaps?');
 			log.info(`Html component ${tagName} already exists, updating instance ref`);
 			existingComponent.instance = newComponent.instance;
 			return;
@@ -71,7 +84,9 @@ export class Router {
 	// load specified web component into target html tag and set slug to specfied value
 	public loadComponent(route: IRoute, setState: boolean = true) {
 		let tag = route.tag;
-		let componentToInsert : BaseComponent;
+		let componentToInsert: BaseComponent;
+		if (route.slug === '*')
+			route.slug = this.Slug;
 
 		log.func(`loadComponent(): Attempting to load component ${route.tag} into element <${route.parent}> and then set url to /${route.slug}`);
 

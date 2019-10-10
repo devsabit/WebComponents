@@ -1,4 +1,5 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
+//import { Router } from '../BaseComponent/Router.js';
 import { PropOut } from '../BaseComponent/PropDecorator.js';
 import { log } from '../BaseComponent/Logger.js';
 
@@ -18,6 +19,16 @@ export default class MyContent extends BaseComponent {
 
 		// add events after html template has been loaded
 		await super.connectedCallback();	// wait till DOM has finished initialising
+
+		let slug = (BaseComponent.Router.Slug === "") ? '/' : BaseComponent.Router.Slug;
+		let requiredRoute = BaseComponent.Router.findRoute(slug);
+		if (requiredRoute.tag !== this.TagName) /*|| requiredRoute.slug |= BaseComponent.Router.Slug)*/
+		{
+			log.highlight('Wrong route loaded by static index.html - trying to reload correct route:');
+			log.debug(requiredRoute);
+			// wrong component loaded, so fire off reload
+			BaseComponent.Router.loadComponent(requiredRoute, false);
+		}
 
 		log.info('sub: MyContent.connectedCallback() base class completed (allegedly)');
 	}
