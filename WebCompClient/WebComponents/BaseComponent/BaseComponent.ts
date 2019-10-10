@@ -26,14 +26,12 @@
 //
 //	static get observedAttributes()		returns string array of observed attributes
 
-import { Router, IComponent } from './Router.js';
+import { Router, IComponent, IRoute } from './Router.js';
 import TemplateParser from './TemplateParser.js';
-import { log } from './Logger.js';
+import { log, assert } from './Logger.js';
 
 export default class BaseComponent extends HTMLElement
 {
-	// static properties (get/set)
-
 	// Note that TypeScript is unable to reference derived class static members from the base class without some casting, so
 	// you need to do this:
 	//	(this.constructor as any).MyStaticProperty (accesses derived class copy, not base class copy)
@@ -45,10 +43,11 @@ export default class BaseComponent extends HTMLElement
 	// ES6 proposal has been added: link???
 
 	// static fields
-	//private static routerInitialised: boolean = false;
+
+	// router (singleton)
+	public static Router: Router = new Router();
 
 	// html tag name
-	//protected static _tagName: string = "BaseComponent (not used)";
 	protected static tag: string = "BaseComponent (not used)";
 	public get TagName(): string {
 		return (this.constructor as any).tag;
@@ -58,7 +57,7 @@ export default class BaseComponent extends HTMLElement
 	//}
 
 	// template html
-	protected static _templateHtml: string = "not used";
+	protected static _templateHtml: string = "";
 	public get TemplateHtml(): string {
 		return (this.constructor as any)._templateHtml;
 	}
@@ -67,24 +66,36 @@ export default class BaseComponent extends HTMLElement
 	}
 
 	// non-static properties
-	protected _shadRoot: Nullable<ShadowRoot> = null;
-	public get ShadRoot(): Nullable<ShadowRoot> { return this._shadRoot }
+	protected _shadRoot: ShadowRoot;
+	public get ShadRoot(): ShadowRoot { return this._shadRoot }
 	public set ShadRoot(value) { this._shadRoot = value }
-
-	// router (singleton)
-	public static router: Router = new Router();
-	//protected router!: Router;
 
 	// ctor
 	constructor(/*tagName: string*/) {
 		super();	// call HTMLElement ctor
 		log.func(`${this.constructor.name} ctor() called`);
 
-		// this.ShadRoot is initialised to null and remains that way until template has been loaded and attached to DOM
-		//this.ShadRoot = null;
+		// attach shadow element so we can find out who our parent is
+		this._shadRoot = this.attachShadow({ mode: 'open' });
+		assert(this._shadRoot != null, `attachShadow() failed from component ${this.constructor.name}}`);
 
-		let component: IComponent = { htmlElement: 'main', instance: this, slug: 'home' };
-		BaseComponent.router.addComponent(component);
+		// get host parent node (from light dom) of this shadow dom node
+		// Note that the following code doesn't work (returns undefined)
+		//let root = this.getRootNode() as ShadowRoot;
+		//let parent = root.host;
+		let host = this.ShadRoot.host;
+		assert(host != undefined, `host element doesn't exist for component ${this.constructor.name}}`);
+
+		// get parent of host
+		let parent = host.parentElement;
+		let parentKey = 'main';
+		if (parent != undefined) {
+			let parentId = parent?.id;
+			parentKey = (parentId == undefined || parentId == "") ? parent.tagName.toLowerCase() : `#${parentId}`;
+		}
+		let component: IComponent = { slug: '', tag: this.TagName, parent: parentKey, instance: this };
+
+		BaseComponent.Router.addComponent(component);
 
 		let parser: TemplateParser  = new TemplateParser(this);
 		parser.cloneAndAttachTemplate(false);
@@ -103,11 +114,21 @@ export default class BaseComponent extends HTMLElement
 		return fn as unknown as EventListener;
 	}
 
+	private getNestedPropValue(path: string): any {
+		let result = path.split('.').reduce((obj:any, key:keyof any) => obj[key]);
+		return result;
+	}
+
 	public GetPropValue(propName: string): this[keyof this] {
+		// top level fields props will be this.field or this.prop
+		// what  about nested data such as this.dto.forename?
+		let nestedVal = this.getNestedPropValue(propName);
+		log.debug(`propName=${propName}, nestedVal=${nestedVal}`);
+
 		let propKey = propName as keyof this;
 		if (!(propKey in this)) {
-			log.error(`HTML Template Error: Property/field '${propKey}' does not exist in component ${this.constructor.name}`);
-			//return '<no such prop/field';
+			log.error(`HTML Template Error: Property/field '${propKey}' does not exist in ${this.constructor.name}. You need to declare this in ${this.constructor.name}.ts as well as adding the necessary decorator (@PropOut or @Attrib)`);
+			//return '<prop not declared>';
 		}
 		let propValue = this[propKey];
 		return propValue;
@@ -159,8 +180,8 @@ export default class BaseComponent extends HTMLElement
 	//}
 
 	public SetElementContent(propName: keyof this) {
-		if (this.ShadRoot == null) {
-			log.warn("SetElementContent(): ShadRoot is null, ignoring call");
+		if (this.TemplateHtml == "") {
+			log.warn("SetElementContent(): TemplateHtml is null, ignoring call");
 			return;
 		}
 
@@ -181,8 +202,8 @@ export default class BaseComponent extends HTMLElement
 		log.event(`${this.constructor.name}.connectedCallback() called`);
 
 		// if this component has already been initialised, then do nothing
-		if (this.ShadRoot != null) {
-			log.info(`Component ${this.TagName} is already initialised, exiting connectedCallback`);
+		if (this.TemplateHtml != "") {
+			log.info(`Component ${this.TagName} template is already initialised, exiting connectedCallback`);
 			return;
 		}
 
@@ -192,11 +213,9 @@ export default class BaseComponent extends HTMLElement
 		}
 
 		// connectedCallback and all descendents must be awaited otherwise intialisation/binding will fail
-		log.info(`Component ${this.TagName} NOT initialised, awaiting html template load...`);
+		log.info(`Component ${this.TagName} NOT initialised, awaiting html template load/parse...`);
 		let parser: TemplateParser = new TemplateParser(this);
 		await parser.loadAndParseTemplate();
-
-		// call addEventListener for every event in html
 	}
 
 	// DOM element unloaded event
@@ -227,7 +246,8 @@ export default class BaseComponent extends HTMLElement
 		log.error('Unxpected call to BaseComponent.adoptedCallback()');
 	}
 
-	public loadComponent(htmlTag: string, targetElement: string, slug: string, setState: boolean = true) {
-		BaseComponent.router.loadComponent(htmlTag, targetElement, slug, setState);
+	public loadComponent(tag: string, parent: string, slug: string, setState: boolean = true) {
+		let route: IRoute = { slug, tag, parent };
+		BaseComponent.Router.loadComponent(route, setState);
 	}
 }

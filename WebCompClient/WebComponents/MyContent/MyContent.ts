@@ -3,66 +3,18 @@ import { PropOut } from '../BaseComponent/PropDecorator.js';
 import { log } from '../BaseComponent/Logger.js';
 
 export default class MyContent extends BaseComponent {
-
 	public static tag = 'my-content';
 
-	//private _a: number = 1;
-	//get a(): number { return this._a; }
-	//set a(value: number) {
-	//	this._a = Number(value);					// force numeric (for dynamic JS)
-	//	super.SetElementContent("a");			// update html
-	//	super.SetElementContent("total");	// update html
-	//}
-	@PropOut
-	public a: number = 1;
-
-	//private _b: number = 2;
-	//get b() { return this._b; }
-	//set b(value: number) {
-	//	this._b = Number(value);					// force numeric (for dynamic JS)
-	//	super.SetElementContent("b");			// update html
-	//	super.SetElementContent("total");	// update html
-	//}
-	@PropOut
-	public b: number = 2;
-
+	@PropOut public a: number = 1;
+	@PropOut public b: number = 2;
 	public get total(): number { return this.a + this.b; }
-
-	//private _proxy: Proxy;
-
-	public updateTotal() {
-
-	}
 
 	constructor() {
 		super();
-
-		// revocable<T extends object>(target: T, handler: ProxyHandler<T>)
-
-		//let target = { age: this.a };
-
-		//let handler = {
-		//	get: (obj: this, prop: keyof this) => obj[prop],
-		//	set: (obj: this, prop: keyof this, value: any) => obj[prop] = value
-		//}
-
-		//const proxy = new Proxy(target, handler);
-		//proxy.age = 120;
-
-		//const proxy2 = new Proxy(this.a, {
-		//	get: (obj: this, prop: keyof this) => obj[prop],
-		//	set: (obj: this, prop: keyof this, value: this[keyof this]) =>
-		//	{
-		//		obj[prop] = value
-		//	}
-		//});
-
-		//proxy2.x = 2;
 	}
 
 	protected async connectedCallback() {
-		// note this may be called multiple times by DOM
-		log.info('sub: MyContent.connectedCallback() called');
+		log.event('sub: MyContent.connectedCallback() called');
 
 		// add events after html template has been loaded
 		await super.connectedCallback();	// wait till DOM has finished initialising
@@ -81,5 +33,10 @@ export default class MyContent extends BaseComponent {
 		log.event(`MyContent.increaseB() fired ${el}`);
 		this.b = el.valueAsNumber;
 	}
+
+	public onTotalChanged() {
+		// call this when A or B changes and total also needs to be updated
+	}
+
 }
 customElements.define(MyContent.tag, MyContent);

@@ -23,7 +23,7 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 	constructor() {
 		super();
 
-		log.info(`BaseInputForm<T> (${this.constructor.name}) ctor called`);
+		log.func(`BaseInputForm<T> (${this.constructor.name}) ctor called`);
 	}
 
 	//public createDto<T>(C: { new(): T }): T {
@@ -34,7 +34,7 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 		await super.connectedCallback();
 
 		// set up DTO
-		log.info(`${this.constructor.name}.connectedCallback() called`);
+		log.event(`${this.constructor.name}.connectedCallback() called`);
 
 		// copy DTO to HTML input form
 		this.copyDtoToFormA<T>(this.dto);

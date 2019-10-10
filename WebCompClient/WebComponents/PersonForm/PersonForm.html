@@ -1,6 +1,6 @@
-﻿<link async rel="stylesheet" href="/WebComponents/PersonForm/PersonForm.css">
+﻿<template id="person-form">
+	<link async rel="stylesheet" href="/WebComponents/PersonForm/PersonForm.css">
 
-<template id="person-form">
 	<form>
 		<label>Forename</label><input type="text" name="forename"><br>
 		<label>Surname</label><input type="text" name="surname"><br>
@@ -12,5 +12,7 @@
 		<label>No</label><input type="radio" name="alive" value="false"><br>
 
 		<button type="button" @click="onSubmit">Submit</button><br>
+
+		<p>Currently {{this.dto.forename}} {{dto.forename}} {{forename}} is alive? {{alive}}</p>
 	</form>
 </template>

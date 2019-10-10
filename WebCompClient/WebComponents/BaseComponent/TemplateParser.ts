@@ -59,16 +59,7 @@ export default class TemplateParser
 	private parseEventsInElement(element: string) {
 		//
 		// input element format:
-		//	<input type="number" value="[[a]]" name="a" @change="...">
-		//
-		// event handler format:
-		//	<... @...="..." >
-		//
-		//let idEnd = 0;
-		//let idStart = element.indexOf('id=') + 4;
-		//if (idStart != -1) {
-		//	idEnd = element.indexOf('"', idStart);
-		//}
+		//	<input type="number" value="[[a]]" name="a" @change="..." @click="...">
 
 		const dataAttrib = this.getDataAttrib(element);
 
@@ -386,7 +377,6 @@ export default class TemplateParser
 
 		// at this point the template has been loaded and found in current document, so we create a new shadow node and attach a cloned copy of the template
 		const templateContent = template.content;
-		this.component.ShadRoot = this.component.attachShadow({ mode: 'open' });
 		this.component.ShadRoot.appendChild(templateContent.cloneNode(true));
 		log.info(`HTML template has been attached for ${this.component.TagName}`);
 

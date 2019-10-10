@@ -1,11 +1,11 @@
-﻿<link async rel="stylesheet" href="/WebComponents/HtmlPage/HtmlPage.css">
+﻿<template id="html-page">
+	<link async rel="stylesheet" href="/WebComponents/HtmlPage/HtmlPage.css">
 
-<template id="html-page">
 	<div>
-		<h1>This is the {{pageName}} page</h1>
+		<h1>This is the {{PageName}} page</h1>
 		<p>This is the content:</p>
-		{{pageContent}}
+		{{PageContent}}
 		<br>
-		<p>The UTC time now is <time-utc /></p>
+		<p>The UTC time now is <my-time format="utc"></my-time></p>
 	</div>
 </template>
