@@ -190,7 +190,7 @@ export default class BaseComponent extends HTMLElement
 
 		let elems = this.getShadowElementsByAttribName(attribName);
 		if (elems == null || elems.length === 0)
-			log.error(`SetElementContent(): Could not find element with attribute ${attribName} inside component ${this.constructor.name}`);
+			log.error(`SetElementContent(): Could not find element with attribute '${attribName}' inside component ${this.constructor.name}`);
 		else {
 			for (let el of elems)
 				el.innerHTML = propValue;

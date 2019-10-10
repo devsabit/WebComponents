@@ -21,14 +21,15 @@ export default class MyTime extends BaseComponent {
 		await super.connectedCallback();
 
 		let format = this.format;
+		let fmt = `(${format})`;
 		if (format == undefined)	// if no format specified, default to local time
 			format = 'local';
 
 		switch (format) {
-			case 'utc': this.time = new Date().toUTCString();
+			case 'utc': this.time = new Date().toUTCString() + fmt;
 				break;
 
-			case 'local': this.time = new Date().toTimeString();
+			case 'local': this.time = new Date().toTimeString() + fmt;
 				break;
 
 			default:

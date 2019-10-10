@@ -32,7 +32,7 @@ export function Attrib(target: Object, fieldName: string) {
 			const attribName: string = fieldName.replace(/_/g, '-');
 			let value = (this as HTMLElement).getAttribute(attribName);
 			if (value == undefined)
-				log.error(`Could not find attribute ${attribName} on element ${this.TagName}`);
+				log.warn(`Could not find attribute '${attribName}' on element ${this.TagName}`);
 			return value;
 		},
 		set: function (value: any) {
