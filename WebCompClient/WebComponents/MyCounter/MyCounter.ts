@@ -5,7 +5,7 @@ import { PropOut } from '../BaseComponent/PropDecorator.js';
 export default class MyCounter extends BaseComponent {
 	public static tag = 'my-counter';
 
-	@PropOut public count: number = 123;
+	@PropOut public count: number = 345;
 
 	constructor() {
 		super();

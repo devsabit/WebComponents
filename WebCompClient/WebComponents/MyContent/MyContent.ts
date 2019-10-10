@@ -5,8 +5,8 @@ import { log } from '../BaseComponent/Logger.js';
 export default class MyContent extends BaseComponent {
 	public static tag = 'my-content';
 
-	@PropOut public a: number = 1;
-	@PropOut public b: number = 2;
+	@PropOut public a: number = 3;
+	@PropOut public b: number = 5;
 	public get total(): number { return this.a + this.b; }
 
 	constructor() {

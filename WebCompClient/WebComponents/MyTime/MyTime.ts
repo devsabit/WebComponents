@@ -9,7 +9,7 @@ export default class MyTime extends BaseComponent {
 	public static tag = 'my-time';
 
 	// props
-	@Attrib public format!: string;
+	@Attrib public readonly format!: string;
 	@PropOut public time!: string;
 
 	// ctor
