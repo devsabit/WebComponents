@@ -25,10 +25,10 @@ export default class MyTime extends BaseComponent {
 			format = 'local';
 
 		switch (format) {
-			case 'utc': this.time = Date.UTC.toString();
+			case 'utc': this.time = new Date().toUTCString();
 				break;
 
-			case 'local': this.time = Date.now.toString();
+			case 'local': this.time = new Date().toTimeString();
 				break;
 
 			default:

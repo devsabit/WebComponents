@@ -30,3 +30,6 @@ checkComponentRegistered(MyCounter.tag);
 
 import PersonForm from './WebComponents/PersonForm/PersonForm.js';
 checkComponentRegistered(PersonForm.tag);
+
+import MyTime from './WebComponents/MyTime/MyTime.js';
+checkComponentRegistered(MyTime.tag);
