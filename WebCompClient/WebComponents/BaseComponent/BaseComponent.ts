@@ -5,9 +5,11 @@
 //
 // Web Components Articles
 // =======================
-// Good Overview article:		https://blog.usejournal.com/web-components-will-replace-your-frontend-framework-3b17a580831c
-// Google recommendations:	https://developers.google.com/web/fundamentals/web-components/best-practices
-// Bugs/shortcomings:				https://dev.to/webpadawan/beyond-the-polyfills-how-web-components-affect-us-today-3j0a
+// Web Component Recommendations:	https://open-wc.org/guide/
+// Good Overview article:					https://blog.usejournal.com/web-components-will-replace-your-frontend-framework-3b17a580831c
+// Another overview:							https://blog.logrocket.com/understanding-shadow-dom-v1-fa9b81ebe3ac/
+// Google recommendations:				https://developers.google.com/web/fundamentals/web-components/best-practices
+// Bugs/shortcomings:							https://dev.to/webpadawan/beyond-the-polyfills-how-web-components-affect-us-today-3j0a
 //
 //	Web Components registration API
 //	===============================
@@ -48,7 +50,7 @@ export default class BaseComponent extends HTMLElement
 	public static Router: Router = new Router();
 
 	// html tag name
-	protected static tag: string = "BaseComponent (not used)";
+	public static tag: string = "BaseComponent (not used)";
 	public get TagName(): string {
 		return (this.constructor as any).tag;
 	}
@@ -56,11 +58,21 @@ export default class BaseComponent extends HTMLElement
 	//	(this.constructor as any).tag = value;
 	//}
 
-	// template html
+	// don't create empty array, component must derive own version if required
+	public static _observedAttributes: string[] = ['Base'];
+	public static get observedAttributes(): string[] {
+		log.highlight(`get ${this.constructor.name}.observedAttributes() called`);
+		log.dump(this._observedAttributes, 'this._observedAttributes');
+		log.dump((this.constructor as any)._observedAttributes, '(this.constructor as any)._observedAttributes');
+		return this._observedAttributes;
+	}
+
+	// template html (one per component shared among all component instances)
 	protected static _templateHtml: string = "";
 	public get TemplateHtml(): string {
 		return (this.constructor as any)._templateHtml;
 	}
+
 	public set TemplateHtml(value: string) {
 		(this.constructor as any)._templateHtml = value;
 	}
@@ -93,7 +105,7 @@ export default class BaseComponent extends HTMLElement
 			let parentId = parent?.id;
 			parentKey = (parentId == undefined || parentId == "") ? parent.tagName.toLowerCase() : `#${parentId}`;
 		}
-		let component: IComponent = { slug: '', tag: this.TagName, parent: parentKey, instance: this };
+		let component: IComponent = { slug: '/', tag: this.TagName, parent: parentKey, instance: this };
 
 		BaseComponent.Router.addComponent(component);
 

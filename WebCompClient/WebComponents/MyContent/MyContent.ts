@@ -6,7 +6,10 @@ import { log } from '../BaseComponent/Logger.js';
 export default class MyContent extends BaseComponent {
 	public static tag = 'my-content';
 
+	//@Watch("this.total")
 	@PropOut public a: number = 3;
+
+	//@Watch("this.total")
 	@PropOut public b: number = 5;
 	public get total(): number { return this.a + this.b; }
 
@@ -20,7 +23,7 @@ export default class MyContent extends BaseComponent {
 		// add events after html template has been loaded
 		await super.connectedCallback();	// wait till DOM has finished initialising
 
-		let slug = (BaseComponent.Router.Slug === "") ? '/' : BaseComponent.Router.Slug;
+		let slug = BaseComponent.Router.Slug;
 		let requiredRoute = BaseComponent.Router.findRoute(slug);
 		if (requiredRoute.tag !== this.TagName) /*|| requiredRoute.slug |= BaseComponent.Router.Slug)*/
 		{

@@ -1,12 +1,14 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
-import { Attrib, PropOut } from '../BaseComponent/PropDecorator.js';
+import { Component, Attrib, PropOut } from '../BaseComponent/PropDecorator.js';
 //import { log } from '../BaseComponent/Logger.js';
 
 // Example usage: <my-time format="utc"></my-time>
 // Note that self-closing tags are not supported for web components: <my-time /> will **NOT** work
 
+@Component('my-time')
 export default class MyTime extends BaseComponent {
-	public static tag = 'my-time';
+	//public static tag = 'my-time';
+	//public static _observedAttributes: string[] = ['MyTime'];
 
 	// props
 	@Attrib public readonly format!: string;

@@ -11,13 +11,6 @@ export class Logger {
 	public constructor() {
 	}
 
-	// test function (not used)
-	public assertionFunctionTest(str: string) {
-		assert(typeof str === "string");
-
-		return str.toUpperCase();
-	}
-
 	// log info
 	public info(msg: string) {
 		console.info(msg);
@@ -38,6 +31,16 @@ export class Logger {
 		if (typeof (msg) === 'object')
 			msg = JSON.stringify(msg);
 		console.info(`%c ${msg}`, "color: purple");
+	}
+
+	// log dump (outputs specified var/object)
+	public dump(obj: object, msg?: string) {
+		let dump: string;
+		if (typeof (obj) === 'object')
+			dump = JSON.stringify(obj);
+		else
+			dump = obj;
+		console.info(`%c ${msg} ${dump}`, "color: purple");
 	}
 
 	// log template

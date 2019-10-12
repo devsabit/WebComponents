@@ -14,8 +14,7 @@ import { log, assert } from '../BaseComponent/Logger.js';
 //}
 
 export default class BaseInputForm<T extends object> extends BaseComponent {
-
-	protected static tag: string;// = "BaseInputForm<T> (not used)";
+	public static tag: string;// Not used by this class, but derived copy used by sublcasses
 
 	// derived class must create the concrete object
 	protected dto!: T; //= this.createDto<T>();

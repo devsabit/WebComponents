@@ -58,6 +58,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="tsconfig.json" />
+    <Content Include="UnsupportedBrowser.html" />
     <Content Include="WebComponents\Alert\Alert.css" />
     <Content Include="WebComponents\Alert\Alert.html" />
     <Content Include="WebComponents\MyCounter\MyCounter.css" />

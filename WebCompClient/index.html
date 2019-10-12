@@ -4,6 +4,12 @@
 <head>
 	<meta charset="utf-8" />
 	<title>TypeScript Web Components App</title>
+	<script>
+		// check browser supports custom elements, if not redirect to unsupported browser page
+		if (window.customElements == undefined) {
+			window.location = 'UnsupportedBrowser.html';
+		}
+	</script>
 	<link async rel="stylesheet" href="app.css" type="text/css" />
 
 	<!-- use es6 modules (must specify type="module") -->
@@ -13,6 +19,7 @@
 </head>
 
 <body>
+	<noscript><div style="font-size:30px; width:100%" class="bg-yellow6 text-grey5">JavaScript is disabled. This website will not work without JavaScript</div></noscript>
 	<div class="container">
 		<my-header class="bg-grey6 text-white rounded pad2" title="My Title" my-cust-attrib="Custom Attribute"></my-header>
 		<my-aside class="bg-grey2 text-white rounded pad2"></my-aside>

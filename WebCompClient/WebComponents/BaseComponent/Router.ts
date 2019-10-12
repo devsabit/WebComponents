@@ -32,15 +32,17 @@ export class Router {
 		this._components = [
 			{ slug: '/',				tag: 'my-content',	parent: 'main', instance: null },
 			{ slug: 'counter',	tag: 'my-counter',	parent: 'main', instance: null },
-			{ slug: 'input',		tag: 'person-form',	parent: 'main', instance: null },
-			{ slug: '*',				tag: 'html-page',		parent: 'main', instance: null }
+			{ slug: 'input',		tag: 'person-form', parent: 'main', instance: null },
+			//{ slug: 'news',			tag: 'html-page',		parent: 'main', instance: null },
+			{ slug: '*',				tag: 'html-page',		parent: 'main', instance: null },
 		];
 
 		// one url event handler for all components
 		window.addEventListener('locationchange', this.onUrlChanged.bind(this));
 		window.addEventListener('popstate', this.onPopstate.bind(this));
 		window.addEventListener('pushstate', this.onPushstate.bind(this));
-		this.Slug = window.location.pathname.slice(1);	// remove leading '/' char
+		let slug = window.location.pathname;
+		this.Slug = (slug === '/') ? '/' : slug.slice(1);
 		log.highlight(`Router initialised, slug=${this.Slug}`);
 	}
 
@@ -74,7 +76,7 @@ export class Router {
 		}
 		else {
 			// in route map, but not yet created, so instance will be null
-			assert(existingComponent.instance == null, 'Request to create component that already exists in map with non-null insatnce??? 404 perhaps?');
+			assert(existingComponent.instance == null, 'Request to create component that already exists in map with non-null instance??? 404 perhaps?');
 			log.info(`Html component ${tagName} already exists, updating instance ref`);
 			existingComponent.instance = newComponent.instance;
 			return;
@@ -88,21 +90,21 @@ export class Router {
 		if (route.slug === '*')
 			route.slug = this.Slug;
 
-		log.func(`loadComponent(): Attempting to load component ${route.tag} into element <${route.parent}> and then set url to /${route.slug}`);
+		log.func(`${this.constructor.name}.loadComponent(): Attempting to load component ${route.tag} into element <${route.parent}> and then set url to /${route.slug}`);
 
 		// see if this component has already been created
 		let component = this.componentExists(route);
 		let componentExists = (component != null) && (component.instance != null);
 		if (!componentExists) {
 			// not found, create new instance of component
-			let compClassCtor = window.customElements.get(component.tag);
+			let compClassCtor = window.customElements.get(route.tag);
 			if (compClassCtor === undefined) {
 				log.error(`${tag} is not [yet?] registered, have you called customElements.define('${tag}', <class name>) in the app.ts file?`);
 				return;
 			}
 			//let className = compClassCtor.constructor.name;
-			log.info(`Creating new component '${component.tag}'`);
-			componentToInsert = new compClassCtor(/*component.parent*/);
+			log.info(`Creating new component '${route.tag}'`);
+			componentToInsert = new compClassCtor();
 		}
 		else {
 			// found in routes list, re-use old component if found

@@ -1,6 +1,14 @@
 ﻿body {
 	font-family: Roboto, Helvetica, Verdana, sans-serif;
+	font: normal 14px/100% 
 }
+
+/* default style for custom elements
+	 note :host { display: block} is not supported on Safari
+*/
+/*:not(html, head, body, header, footer, aside, main, div, span, p, h1, h2, h3, h4, h5, h6) {
+	display:block;
+}*/
 
 my-header		{ grid-area: header }
 my-aside		{ grid-area: aside }
@@ -18,17 +26,9 @@ my-footer		{ grid-area: footer }
 }
 
 /* ignore these container elements within css grid */
-div, header, aside, main, footer {
+header, aside, main, footer {
 	display: contents;
 }
-
-/*.box {
-	background-color: #333;
-	color: #fff;
-	border-radius: 5px;
-	padding: 30px;
-}*/
-
 
 /* colour palette from https://www.rapidtables.com/web/color/RGB_Color.html */
 
@@ -62,6 +62,36 @@ div, header, aside, main, footer {
 .text-blue7 { color: #66f }
 .text-blue8 { color: #99f }
 .text-blue9 { color: #ccf }
+
+.text-yellow1 { color: #330 }
+.text-yellow2 { color: #660 }
+.text-yellow3 { color: #990 }
+.text-yellow4 { color: #cc0 }
+.text-yellow5 { color: #ff0 }
+.text-yellow6 { color: #ff3 }
+.text-yellow7 { color: #ff6 }
+.text-yellow8 { color: #ff9 }
+.text-yellow9 { color: #ffc }
+
+.text-magenta1 { color: #303 }
+.text-magenta2 { color: #606 }
+.text-magenta3 { color: #909 }
+.text-magenta4 { color: #c0c }
+.text-magenta5 { color: #f0f }
+.text-magenta6 { color: #f3f }
+.text-magenta7 { color: #f6f }
+.text-magenta8 { color: #f9f }
+.text-magenta9 { color: #fcf }
+
+.text-cyan1 { color: #033 }
+.text-cyan2 { color: #066 }
+.text-cyan3 { color: #099 }
+.text-cyan4 { color: #0cc }
+.text-cyan5 { color: #0ff }
+.text-cyan6 { color: #3ff }
+.text-cyan7 { color: #6ff }
+.text-cyan8 { color: #9ff }
+.text-cyan9 { color: #cff }
 
 .text-black { color: #000 }
 .text-grey1 { color: #222 }
@@ -105,6 +135,36 @@ div, header, aside, main, footer {
 .bg-blue7 { background-color: #66f }
 .bg-blue8 { background-color: #99f }
 .bg-blue9 { background-color: #ccf }
+
+.bg-yellow1 { background-color: #330 }
+.bg-yellow2 { background-color: #660 }
+.bg-yellow3 { background-color: #990 }
+.bg-yellow4 { background-color: #cc0 }
+.bg-yellow5 { background-color: #ff0 }
+.bg-yellow6 { background-color: #ff3 }
+.bg-yellow7 { background-color: #ff6 }
+.bg-yellow8 { background-color: #ff9 }
+.bg-yellow9 { background-color: #ffc }
+
+.bg-magenta1 { background-color: #303 }
+.bg-magenta2 { background-color: #606 }
+.bg-magenta3 { background-color: #909 }
+.bg-magenta4 { background-color: #c0c }
+.bg-magenta5 { background-color: #f0f }
+.bg-magenta6 { background-color: #f3f }
+.bg-magenta7 { background-color: #f6f }
+.bg-magenta8 { background-color: #f9f }
+.bg-magenta9 { background-color: #fcf }
+
+.bg-cyan1 { background-color: #033 }
+.bg-cyan2 { background-color: #066 }
+.bg-cyan3 { background-color: #099 }
+.bg-cyan4 { background-color: #0cc }
+.bg-cyan5 { background-color: #0ff }
+.bg-cyan6 { background-color: #3ff }
+.bg-cyan7 { background-color: #6ff }
+.bg-cyan8 { background-color: #9ff }
+.bg-cyan9 { background-color: #cff }
 
 .bg-black { background-color: #000 }
 .bg-grey1 { background-color: #222 }
