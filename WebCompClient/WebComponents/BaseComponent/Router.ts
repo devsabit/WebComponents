@@ -83,7 +83,7 @@ export class Router {
 	}
 
 	// load specified web component into target html tag and set slug to specfied value
-	public loadComponent(route: IRoute, setState: boolean = true) {
+	public async loadComponent(route: IRoute, setState: boolean = true) {
 		let tag = route.tag;
 		let componentToInsert: BaseComponent;
 		if (route.slug === '*')
@@ -96,6 +96,20 @@ export class Router {
 		let componentExists = (component != null) && (component.instance != null);
 		if (!componentExists) {
 			// not found, create new instance of component
+
+			// in case this component hasn't been registered, attempt a dynamic import
+			let componentName = route.tag.replace(/-/g, '');
+			let componentPath = `/WebComponents/${componentName}/${componentName}.js`;
+			try {
+				//type ModuleType = ReturnType<typeof module>;
+				let module = await import(componentPath);
+				log.info(`Successfully loaded class '${module.default.name}' from path ${componentPath}`);
+			}
+			catch (error) {
+				log.exception(error);
+				log.error(`Unable to load component '${route.tag}' from path ${componentPath}`);
+			}
+
 			let compClassCtor = window.customElements.get(route.tag);
 			if (compClassCtor === undefined) {
 				log.error(`${tag} is not [yet?] registered, have you called customElements.define('${tag}', <class name>) in the app.ts file?`);

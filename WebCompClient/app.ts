@@ -26,6 +26,7 @@ async function checkComponentRegistered<T extends BaseComponent>(classDesc: Cons
 	}
 }
 
+// these are statically loaded as they all appear on the index.html page
 import MyHeader from './WebComponents/MyHeader/MyHeader.js'
 checkComponentRegistered(MyHeader);
 
@@ -38,14 +39,16 @@ checkComponentRegistered(MyAside);
 import MyContent from './WebComponents/MyContent/MyContent.js';
 checkComponentRegistered(MyContent);
 
-import HtmlPage from './WebComponents/HtmlPage/HtmlPage.js';
-checkComponentRegistered(HtmlPage);
+// the following components are loaded dynamically
 
-import MyCounter from './WebComponents/MyCounter/MyCounter.js';
-checkComponentRegistered(MyCounter);
+//import HtmlPage from './WebComponents/HtmlPage/HtmlPage.js';
+//checkComponentRegistered(HtmlPage);
 
-import PersonForm from './WebComponents/PersonForm/PersonForm.js';
-checkComponentRegistered(PersonForm);
+//import MyCounter from './WebComponents/MyCounter/MyCounter.js';
+//checkComponentRegistered(MyCounter);
 
-import MyTime from './WebComponents/MyTime/MyTime.js';
-checkComponentRegistered(MyTime);
+//import PersonForm from './WebComponents/PersonForm/PersonForm.js';
+//checkComponentRegistered(PersonForm);
+
+//import MyTime from './WebComponents/MyTime/MyTime.js';
+//checkComponentRegistered(MyTime);

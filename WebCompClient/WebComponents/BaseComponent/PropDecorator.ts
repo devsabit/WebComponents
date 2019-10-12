@@ -49,9 +49,9 @@ export function Component<T extends BaseComponent>(tagName: string): Function {
 
 		(ctor: Constructor<T>) => {
 			log.dump(ctor, '>>> ctor');
-			log.highlight(`>>> Trying to set static field BaseComponent.tag = ${tagName}`);
-			BaseComponent.tag = tagName;
-			log.highlight(`>>> static field was set BaseComponent.tag = ${BaseComponent.tag}`);
+			//log.highlight(`>>> Trying to set static field BaseComponent.tag = ${tagName}`);
+			//BaseComponent.tag = tagName;
+			//log.highlight(`>>> static field was set BaseComponent.tag = ${BaseComponent.tag}`);
 		}
 
 		// register the component

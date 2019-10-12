@@ -61,6 +61,12 @@ export class Logger {
 		return msg;
 	}
 
+	// log exception
+	public exception(msg: string) {
+		console.info(`%c ${msg}`, "background-color: black; color: white");
+		alert(msg);
+	}
+
 	// log highlighted text
 	public highlight(msg: string) {
 		console.info(`%c ${msg}`, 'color: black; background: yellow');

@@ -18,7 +18,7 @@
 		"removeComments": true,
 		"sourceMap": true,
 		"target": "es6",
-		"module": "es6"	// use AMD modules for single file
+		"module": "esnext"	// use AMD modules for single file, use esNext for dynamic module loading
 		//"outFile": "./build.js"
 	},
 	"exclude": [
