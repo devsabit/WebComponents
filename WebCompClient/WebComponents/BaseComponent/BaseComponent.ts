@@ -193,7 +193,7 @@ export default class BaseComponent extends HTMLElement
 
 	public SetElementContent(propName: keyof this) {
 		if (this.TemplateHtml == "") {
-			log.warn("SetElementContent(): TemplateHtml is null, ignoring call");
+			log.info("SetElementContent(): TemplateHtml is null, ignoring call (static initialisation will cause this, it's not an issue)");
 			return;
 		}
 

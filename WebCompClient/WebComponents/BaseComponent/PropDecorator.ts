@@ -3,10 +3,6 @@ import { log, assert } from '../BaseComponent/Logger.js';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//type Constructor<T> = {
-//	new(...args: any[]): T
-//};
-
 // From the TC39 Decorators proposal
 //interface ClassDescriptor {
 //	kind: 'class';
@@ -28,29 +24,41 @@ import { log, assert } from '../BaseComponent/Logger.js';
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // class decorator
-export function Component(tagName: string) {
-	return (ctor: Function) => {
-		log.highlight(`Class decorator called for : ${tagName}`);
-		log.dump(ctor);
-		log.info(`Setting tag for ${ctor.name}.tag = ${tagName}`);
-		BaseComponent.tag = tagName;		// this works
-	}
-}
-
-//export function Component<T extends BaseComponent>(tagName: string): Function {
-//	return (classDesc: Constructor<T> /*ClassDescriptor*/) => {
-//		(ctor: Constructor<T>) => {
-//			log.highlight(`Class decorator called for : ${tagName}`);
-//			log.dump(ctor);
-//			BaseComponent.tag = tagName;		// this works??
-//			log.dump(classDesc);
-
-//			//// not sure about the following code:
-//			//BaseComponent._observedAttributes = [`${tagName}`];
-//			//customElements.define(tagName, ctor.constructor);
-//		}
+//export function Component(tagName: string) {
+//	return (ctor: Function) => {
+//		log.highlight(`Class decorator called for : ${tagName}`);
+//		log.dump(ctor);
+//		log.info(`Setting tag for ${ctor.name}.tag = ${tagName}`);
+//		BaseComponent.tag = tagName;		// this works
 //	}
 //}
+
+// @Component class decorator
+export function Component<T extends BaseComponent>(tagName: string): Function {
+	log.highlight(`> Class decorator called for : ${tagName}`);
+
+	return (classDesc: Constructor<T> /*ClassDescriptor*/) => {
+		log.dump(classDesc, '>> classDesc');
+
+		// check that static tag field is defined, if not, then add it to class
+		const fieldName: string = 'tag';
+		if (!classDesc.hasOwnProperty(fieldName)) {
+			log.highlight(`>> Class ${classDesc.constructor.name} does not have own static field '${fieldName}', attempting to define and initialise to '${tagName}' now`);
+			Object.defineProperty(classDesc, fieldName, { value: tagName });
+		}
+
+		(ctor: Constructor<T>) => {
+			log.dump(ctor, '>>> ctor');
+			log.highlight(`>>> Trying to set static field BaseComponent.tag = ${tagName}`);
+			BaseComponent.tag = tagName;
+			log.highlight(`>>> static field was set BaseComponent.tag = ${BaseComponent.tag}`);
+		}
+
+		// register the component
+		log.highlight(`>> Registering component class=${classDesc.constructor.name}, html tag=${tagName}`);
+		customElements.define(tagName, classDesc);
+	}
+}
 
 //export function Prop(target: Object, name: string)
 //{
@@ -65,6 +73,7 @@ export function Component(tagName: string) {
 //	});
 //}
 
+// property decorator for output properties
 export function PropOut(target: Object, propName: string) {
 	Object.defineProperty(target, propName, {
 		get: function () { return this['_' + propName]; },
@@ -78,32 +87,31 @@ export function PropOut(target: Object, propName: string) {
 	})
 }
 
+// property decorator for custom attributes
 export function Attrib<T extends BaseComponent>(target: T, fieldName: string) {
 	const kebabName: string = fieldName.replace(/_/g, '-');
-	log.highlight(`@Attrib called, fieldName=${fieldName}`);
+	log.highlight(`@Attrib called, fieldName=${fieldName}, kebabName=${kebabName}`);
 
 	// if not present, create static _observedAttributes field and initialise with {fieldName}
 	// if it already exists, add {fieldName} to the list
 	if (!target.hasOwnProperty('_observedAttributes')) {
-		log.highlight(`Class ${target.constructor.name} does not have own property '_observedAttributes', attempting to define now`);
+		log.highlight(`Class ${target.constructor.name} does not have own field '_observedAttributes', attempting to define now`);
 		//let propValues: string[] = ['bacon', target.constructor.name, fieldName];
 		let propValues: string[] = [fieldName];
-		log.highlight(`propValue = ${propValues}`);
 		Object.defineProperty(target, '_observedAttributes', { value: propValues });
+		let actualValue: string[] = (target as any)['_observedAttributes'];
+		log.dump(actualValue, `${target.constructor.name}._observedAttributes`);
 	}
 	else {
-		let obsAttrs: string[];
-		let obj = (target as any)._observedAttributes;
-		assert(obj != null, `Can't find _observedAttributes on ${target.constructor.name}`)
-		log.info(`target._observedAttributes has a value`);
-		log.info(`typeof obj=${typeof obj}`);
-		log.dump(obj);
-		obsAttrs = obj as unknown as string[];
-		assert(obsAttrs != null, `obsAttrs is null`);
+		log.highlight(`Class ${target.constructor.name} already has own field '_observedAttributes'`);
+		let obsAttrs: string[] = (target as any)._observedAttributes;
+		assert(obsAttrs != undefined, `Can't find _observedAttributes on ${target.constructor.name}`);
+		log.dump(obsAttrs, 'Old value of obsAttrs');
 		obsAttrs.push(kebabName);	// add to list of watched attributes so that we get the attributeChangedCallback() event call
+		log.dump((target as any)._observedAttributes, 'New value of obsAttrs');
 	}
 
-	// also remember to create the property for this attribute
+	// also remember to create the property getter and setter for this attribute
 	Object.defineProperty(target, fieldName, {
 		get: function () {
 			const attribName: string = fieldName.replace(/_/g, '-');	// kebab-case custom attribute name

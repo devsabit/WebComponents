@@ -4,10 +4,8 @@ import { Component, Attrib } from '../BaseComponent/PropDecorator.js';
 
 @Component('my-header')
 export default class MyHeader extends BaseComponent {
-	//public static tag = 'my-header';
-	//public static _observedAttributes: string[] = ['title', 'my_cust_attrib'];
 
-	// web component observed attributes (added automatically by @Attrib to BaseComponent)
+	// web component observed attributes (added automatically by @Attrib to MyHeader._observedAttributes[])
 	//static get observedAttributes() {
 	//	return ['title', 'my-cust-attrib'];
 	//}
@@ -21,4 +19,3 @@ export default class MyHeader extends BaseComponent {
 		super();
 	}
 }
-customElements.define(MyHeader.tag, MyHeader);

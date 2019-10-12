@@ -7,11 +7,9 @@ import { Component, Attrib, PropOut } from '../BaseComponent/PropDecorator.js';
 
 @Component('my-time')
 export default class MyTime extends BaseComponent {
-	//public static tag = 'my-time';
-	//public static _observedAttributes: string[] = ['MyTime'];
 
 	// props
-	@Attrib public readonly format!: string;
+	@Attrib public readonly format!: string;	// set all @Attrib vars to readonly to avoid accidental DOM updating
 	@PropOut public time!: string;
 
 	// ctor
@@ -22,7 +20,7 @@ export default class MyTime extends BaseComponent {
 	protected async connectedCallback() {
 		await super.connectedCallback();
 
-		let format = this.format;
+		let format = this.format; // take a copy of this, because it's a TypeScript property bound to a DOM attribute, not a TS property with a backing field
 		let fmt = `(${format})`;
 		if (format == undefined)	// if no format specified, default to local time
 			format = 'local';
@@ -39,4 +37,3 @@ export default class MyTime extends BaseComponent {
 		}
 	}
 }
-customElements.define(MyTime.tag, MyTime);

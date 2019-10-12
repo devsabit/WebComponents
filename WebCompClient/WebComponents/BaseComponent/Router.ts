@@ -43,7 +43,7 @@ export class Router {
 		window.addEventListener('pushstate', this.onPushstate.bind(this));
 		let slug = window.location.pathname;
 		this.Slug = (slug === '/') ? '/' : slug.slice(1);
-		log.highlight(`Router initialised, slug=${this.Slug}`);
+		log.info(`Router initialised, slug=${this.Slug}`);
 	}
 
 	public findRoute(slug: string): IRoute {
@@ -54,8 +54,7 @@ export class Router {
 			assert(comp != null, 'Oh no!');
 		}
 		let route: IRoute = { slug: comp.slug, tag: comp.tag, parent: comp.parent };
-		log.highlight(`findRoute(): Route found was:`);
-		log.debug(route);
+		log.dump(route, `findRoute(): Route found was : `);
 		return route;
 	}
 
@@ -129,7 +128,7 @@ export class Router {
 
 		// update route with new url
 		this.Slug = route.slug;
-		log.highlight(`Router slug changed, slug=${this.Slug}`);
+		log.debug(`Router slug changed, slug=${this.Slug}`);
 
 		// update DOM with correct component, this will fire the connectedCallback() event
 		parentNode.replaceChild(componentToInsert, componentToReplace);

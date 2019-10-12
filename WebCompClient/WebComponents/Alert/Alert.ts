@@ -1,13 +1,15 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
+import { Component } from '../BaseComponent/PropDecorator.js';
 import { log } from '../BaseComponent/Logger.js';
 
+@Component('my-alert')
 export default class Alert extends BaseComponent {
-
-	public static tag = 'oo-alert';
-	public title: string = '';
-	public content: string = '';
-
-	constructor() {
+	// [1] You can have parameters in your constructor if this component is created by your own TypeScript code
+	// [2] You can't use ctor parameters if it's created by the browser from static html:
+	//	<my-alert title="My title" content = "My content"></my-alert>
+	// If you choose the second option, you'll need to use custom attributes and map them with the @Attrib decorator
+	// see the MyTime component for an example of this
+	constructor(public title: string, public content: string) {
 		super();
 	}
 
@@ -18,14 +20,6 @@ export default class Alert extends BaseComponent {
 		// call base class and wait till complete
 		await super.connectedCallback();
 
-		// init component data
-		//this.page = ???;
-
-		// update component html
-		this.SetElementContent('title');
-		this.SetElementContent('content');
-
 		log.func('sub: Alert.connectedCallback() completed');
 	}
 }
-customElements.define(Alert.tag, Alert);

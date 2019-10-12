@@ -40,7 +40,8 @@ export class Logger {
 			dump = JSON.stringify(obj);
 		else
 			dump = obj;
-		console.info(`%c ${msg} ${dump}`, "color: purple");
+		console.info(`%c ${msg} has the following value:`, "color: purple");
+		console.info(`%c ${dump}`, "color: purple");
 	}
 
 	// log template

@@ -1,10 +1,9 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
-//import { Router } from '../BaseComponent/Router.js';
+import { Component } from '../BaseComponent/PropDecorator.js';
 import { log } from '../BaseComponent/Logger.js';
 
+@Component('html-page')
 export default class HtmlPage extends BaseComponent {
-	public static tag = 'html-page';
-
 	public PageName: string = '';
 	public PageContent: string = '';
 
@@ -21,7 +20,7 @@ export default class HtmlPage extends BaseComponent {
 
 		// get slug & update component props/fields
 		const slug = BaseComponent.Router.Slug;
-		log.highlight(`Router.Slug is '${slug}'`);
+		log.debug(`Router.Slug is '${slug}'`);
 		this.PageName = slug;
 
 		let response = await fetch(`/WebComponents/TestData/${this.PageName}.html`);
@@ -34,4 +33,3 @@ export default class HtmlPage extends BaseComponent {
 		log.info('sub: HtmlPage.connectedCallback() base class completed');
 	}
 }
-customElements.define(HtmlPage.tag, HtmlPage);

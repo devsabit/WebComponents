@@ -1,10 +1,9 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
-//import { Router } from '../BaseComponent/Router.js';
-import { PropOut } from '../BaseComponent/PropDecorator.js';
+import { Component, PropOut } from '../BaseComponent/PropDecorator.js';
 import { log } from '../BaseComponent/Logger.js';
 
+@Component('my-content')
 export default class MyContent extends BaseComponent {
-	public static tag = 'my-content';
 
 	//@Watch("this.total")
 	@PropOut public a: number = 3;
@@ -53,4 +52,3 @@ export default class MyContent extends BaseComponent {
 	}
 
 }
-customElements.define(MyContent.tag, MyContent);

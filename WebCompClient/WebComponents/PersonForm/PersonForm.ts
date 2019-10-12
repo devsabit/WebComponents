@@ -1,10 +1,10 @@
 ﻿import BaseInputForm from '../BaseComponent/BaseInputForm.js';
 import Person from './Person.js';
-import { PropOut } from '../BaseComponent/PropDecorator.js';
+import { Component, PropOut } from '../BaseComponent/PropDecorator.js';
 import { log } from '../BaseComponent/Logger.js';
 
+@Component('person-form')
 export default class PersonForm extends BaseInputForm<Person> {
-	public static tag = 'person-form';
 
 	// input form DTO is declared in base class BaseInputForm<T>
 	//protected dto: Person = new Person();
@@ -29,6 +29,4 @@ export default class PersonForm extends BaseInputForm<Person> {
 		log.info('this.dto updated values are:');
 		log.debug(this.dto);
 	}
-
 }
-customElements.define(PersonForm.tag, PersonForm);

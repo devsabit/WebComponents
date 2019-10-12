@@ -1,9 +1,9 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
-import { PropOut } from '../BaseComponent/PropDecorator.js';
+import { Component, PropOut } from '../BaseComponent/PropDecorator.js';
 //import { log } from '../BaseComponent/Logger.js';
 
+@Component('my-counter')
 export default class MyCounter extends BaseComponent {
-	public static tag = 'my-counter';
 
 	@PropOut public count: number = 345;
 
@@ -11,4 +11,3 @@ export default class MyCounter extends BaseComponent {
 		super();
 	}
 }
-customElements.define(MyCounter.tag, MyCounter);
