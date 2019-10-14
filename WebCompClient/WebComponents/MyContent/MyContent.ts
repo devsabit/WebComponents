@@ -6,7 +6,7 @@ import { log } from '../BaseComponent/Logger.js';
 export default class MyContent extends BaseComponent {
 
 	@PropOut3 public x: number = 7;
-	@PropOut3 public y: number = 11;
+	@PropOut3() public y: number = 11;
 	@PropOut3('total', 'mult') public a: number = 3;
 	@PropOut3('total', 'mult') public b: number = 5;
 

@@ -126,7 +126,7 @@ export function Component<T extends BaseComponent>(tagName: string): Function {
 //function deco2(target: any, propName: string): void;
 //function deco2(...deps: any): any
 
-function defineProp(_target: Object, propName: string): any {
+function definePropWithoutDeps(_target: Object, propName: string): any {
 	return {
 		get: function () { return this['_' + propName]; },
 		set: function (value: any) {
@@ -136,6 +136,7 @@ function defineProp(_target: Object, propName: string): any {
 			log.highlight(`No deps to update for prop '${propName}'`);
 		}
 	}
+}
 
 	//return Object.defineProperty(target, propName, {
 	//	get: function () { return this['_' + propName]; },
@@ -148,7 +149,6 @@ function defineProp(_target: Object, propName: string): any {
 	//	enumerable: true,
 	//	configurable: true
 	//})
-}
 
 export function PropOut3(...deps: string[]): (target: Object, propName: string) => void;
 export function PropOut3(target: Object, propName: string): void;
@@ -184,15 +184,17 @@ export function PropOut3(...deps: any): any {
 	else {
 		// not a list of string args, therefore this is a property decorator (not a decorator factory), hence there are no property dependencies specified
 		log.highlight(`Defining setter **without** deps`);
-		//let emptyObject: boolean = (Object.keys(deps[0]).length === 0) && (deps[0].constructor === Object);
 		if (deps[0] == undefined) {
-			// hmm? can we get the meta data for this prop, now that the user has hidden it by specifying @PropOut() rather than just @PropOut ???
-			// possibly - using metadata API and getting TypeScript to output decorator metadata
-			//let desc = target.getOwnPropertyDescriptor(propName); <-- this won't work since target is empty object {}
-			log.error(`@PropOut decorator error: You have not specified any dependencies for property. Do not use syntax @PropOut() ..., instead use either use @PropOut ... (without parentheses) or  @PropOut('dependency1', 'dependency2', ...) ...`);
+			// user has specified @PropOut() ... (with brackets but without parameters, treat the same as @PropOut ...)
+			return function (target: Object, propName: string) {
+				definePropWithoutDeps(target, propName);
+			}
 		}
-		return defineProp(deps[0], deps[1]);
-	}
+		else {
+			// we were pased a target and property name as params [0] and [1], so use those
+			return definePropWithoutDeps(deps[0], deps[1]);
+		}
+	} // end else
 }
 
 // new spicy version
