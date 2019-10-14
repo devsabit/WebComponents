@@ -133,6 +133,21 @@ export default class TemplateParser
 		return result;
 	}
 
+	private ParseTemplate(templateElement: string): string {
+		log.info(`Parsing <template> element: ${templateElement}`);
+
+		// append data attribute data-wci-{prop}n to input field
+		let dataAttribName = this.component.getDataAttribWct();	// convert to input data attribute: data-wct-xxx-xxxx
+
+		return templateElement.slice(0, -1) + ` ${dataAttribName}>`;							// append to input element
+	}
+
+	private parseTemplateElement(htmlTemplate: string): string {
+		// parse <template> elements and add data-wct-... id attribute
+		let result = htmlTemplate.replace(/<template>/gm, (key: string): string => this.ParseTemplate(key));
+		return result;
+	}
+
 	private getEventsInElement(element: string) : string[]
 	{
 		// returns array of events in format @event="handling code or function name"
@@ -142,8 +157,8 @@ export default class TemplateParser
 	}
 
 	private ParseOther(element: string): string {
-		// skip input elements, they have already been processed by parseInputElements()
-		if (element.startsWith('<input'))
+		// skip <input> and <template> elements, they have already been processed by parseInputElements() and parseTemplateElements()
+		if (element.toLowerCase().startsWith('<input') || element.toLowerCase().startsWith('<template'))
 			return element;
 
 		log.info(`Parsing non-input element: ${element}`);
@@ -314,6 +329,9 @@ export default class TemplateParser
 		//	return staticSub;
 		//});
 
+		// parse <template> elements and add unnique data-wct-... attribute
+		parsedHtml = this.parseTemplateElement(parsedHtml);
+
 		// parse <input> elments and add data-wci-... attribs to all inputs
 		parsedHtml = this.parseInputElements(parsedHtml);
 
@@ -364,7 +382,8 @@ export default class TemplateParser
 
 	// clone and attach to previously loaded html template (will silently fail if template not found, then retry when DOM element is loaded)
 	public cloneAndAttachTemplate(showErrors: boolean) {
-		const templateName = `#${this.component.TagName}`;
+		//const templateName = `#${this.component.TagName}`;
+		const templateName = `[${this.component.getDataAttribWct()}]`;
 		const template = document.querySelector<HTMLTemplateElement>(templateName);
 		if (template == null) {
 			let errMsg = `Cannot find template with id ${templateName} in current html document`;

@@ -127,6 +127,7 @@ export function Component<T extends BaseComponent>(tagName: string): Function {
 //function deco2(...deps: any): any
 
 function definePropWithoutDeps(_target: Object, propName: string): any {
+	// this shorthand notation (without Object.defineProperty(...) works in TypeScript, probably not in Babel)
 	return {
 		get: function () { return this['_' + propName]; },
 		set: function (value: any) {
@@ -150,9 +151,19 @@ function definePropWithoutDeps(_target: Object, propName: string): any {
 	//	configurable: true
 	//})
 
+//interface IPropDecorator{
+//	target: Object,
+//	propName: string
+//}
+
+//interface IPropDecoratorFactory {
+//	deps: string[]
+//}
+
 export function PropOut3(...deps: string[]): (target: Object, propName: string) => void;
 export function PropOut3(target: Object, propName: string): void;
 export function PropOut3(...deps: any): any {
+//export function PropOut3(...deps: (string|Object)[]) {
 	//let target: Object = deps[0];
 	//let propName: string = deps[1];
 

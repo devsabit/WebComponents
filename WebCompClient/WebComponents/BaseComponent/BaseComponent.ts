@@ -158,6 +158,10 @@ export default class BaseComponent extends HTMLElement
 		return `data-wce-${propName}`;
 	}
 
+	public getDataAttribWct(): string {
+		return `data-wci-${this.TagName}`;
+	}
+
 	public getShadowElementsByAttribName<T extends HTMLElement>(attribName: string): NodeListOf<T> {
 		let shad = this.shadowRoot;
 		if (shad == null) {
