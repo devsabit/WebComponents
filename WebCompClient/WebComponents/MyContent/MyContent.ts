@@ -1,16 +1,19 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
-import { Component, PropOut } from '../BaseComponent/PropDecorator.js';
+import { Component, PropOut3 } from '../BaseComponent/PropDecorator.js';
 import { log } from '../BaseComponent/Logger.js';
 
 @Component('my-content')
 export default class MyContent extends BaseComponent {
 
-	//@Watch("this.total")
-	@PropOut public a: number = 3;
+	@PropOut3 public x: number = 7;
+	@PropOut3 public y: number = 11;
+	@PropOut3('total', 'mult') public a: number = 3;
+	@PropOut3('total', 'mult') public b: number = 5;
 
-	//@Watch("this.total")
-	@PropOut public b: number = 5;
-	public get total(): number { return this.a + this.b; }
+	// computed properties
+	public get total(): number { return this.a + this.b	}
+	public get mult(): number { return this.a * this.b }
+	public readonly pi: number = Math.PI;
 
 	constructor() {
 		super();

@@ -1,5 +1,5 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
-import { Component, Attrib, PropOut } from '../BaseComponent/PropDecorator.js';
+import { Component, Attrib, PropOut3 } from '../BaseComponent/PropDecorator.js';
 //import { log } from '../BaseComponent/Logger.js';
 
 // Example usage: <my-time format="utc"></my-time>
@@ -10,11 +10,12 @@ export default class MyTime extends BaseComponent {
 
 	// props
 	@Attrib public readonly format!: string;	// set all @Attrib vars to readonly to avoid accidental DOM updating
-	@PropOut public time!: string;
+	@PropOut3 public time: string;
 
 	// ctor
 	constructor() {
 		super();
+		this.time = "23:59";
 	}
 
 	protected async connectedCallback() {

@@ -4,7 +4,7 @@ import { Component } from '../BaseComponent/PropDecorator.js';
 
 @Component('my-footer')
 export default class MyFooter extends BaseComponent {
-	copyright: string = `(c) Widget Ltd ${new Date().getFullYear()}`;
+	public copyright: string = `(c) Widget Ltd ${new Date().getFullYear()}`;
 	constructor() {
 		super();
 	}

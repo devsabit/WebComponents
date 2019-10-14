@@ -5,8 +5,9 @@ import { log } from '../BaseComponent/Logger.js';
 @Component('my-alert')
 export default class Alert extends BaseComponent {
 	// [1] You can have parameters in your constructor if this component is created by your own TypeScript code
-	// [2] You can't use ctor parameters if it's created by the browser from static html:
+	// [2] You cannot use ctor parameters if it's created by the browser from static html, e.g:
 	//	<my-alert title="My title" content = "My content"></my-alert>
+	//
 	// If you choose the second option, you'll need to use custom attributes and map them with the @Attrib decorator
 	// see the MyTime component for an example of this
 	constructor(public title: string, public content: string) {

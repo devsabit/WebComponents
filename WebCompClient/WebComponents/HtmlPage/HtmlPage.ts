@@ -1,6 +1,7 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
 import { Component } from '../BaseComponent/PropDecorator.js';
 import { log } from '../BaseComponent/Logger.js';
+import '../MyTime/MyTime.js';	// use unnamed import to ensure MyTime loaded
 
 @Component('html-page')
 export default class HtmlPage extends BaseComponent {
@@ -12,6 +13,7 @@ export default class HtmlPage extends BaseComponent {
 	}
 
 	protected async connectedCallback() {
+
 		// note this will be called every time this component is inserted/reinserted into the DOM
 		log.event('sub: HtmlPage.connectedCallback() called');
 
