@@ -41,8 +41,9 @@ export default class TemplateParser
 		}
 		else {
 			// not a JS function name, create anonymous handler and add specified code
-			let componentName = this.component.constructor.name;
-			let newAnonFn = new Function("event", `console.log('@${event} anon handler fired (${componentName})'); ${code}`) as EventListener;
+			//let componentName = this.component.constructor.name;
+			let logCode = `console.log('@' + event.type); console.log('Anon handler fired for ${this.component.constructor.name}');`;
+			let newAnonFn = new Function("event", `${logCode} ${code}`) as EventListener;
 			el.addEventListener(eventName, newAnonFn.bind(this.component));
 		}
 	}

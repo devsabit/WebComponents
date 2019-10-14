@@ -9,6 +9,8 @@ export default class MyContent extends BaseComponent {
 	@PropOut3() public y: number = 11;
 	@PropOut3('total', 'mult') public a: number = 3;
 	@PropOut3('total', 'mult') public b: number = 5;
+	@PropOut3 public c: string = '';
+	@PropOut3() public d: string = 'hello';
 
 	// computed properties
 	public get total(): number { return this.a + this.b	}

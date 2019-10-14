@@ -126,17 +126,17 @@ export function Component<T extends BaseComponent>(tagName: string): Function {
 //function deco2(target: any, propName: string): void;
 //function deco2(...deps: any): any
 
-function definePropWithoutDeps(_target: Object, propName: string): any {
-	// this shorthand notation (without Object.defineProperty(...) works in TypeScript, probably not in Babel)
-	return {
+function definePropWithoutDeps(target: Object, propName: string): any {
+	// Note that the shorthand notation (without Object.defineProperty(...) doesn't work fro PropOut() scenario
+	return Object.defineProperty(target, propName, {
 		get: function () { return this['_' + propName]; },
 		set: function (value: any) {
 			log.info(`${this.constructor.name}.${propName} = ${value}`);
 			this['_' + propName] = value;
 			this.SetElementContent(propName);	// update corresponding output <span> whenever this property changes
-			log.highlight(`No deps to update for prop '${propName}'`);
+			log.highlight(`No deps to update for prop '${propName}'`)
 		}
-	}
+	});
 }
 
 	//return Object.defineProperty(target, propName, {
@@ -183,7 +183,7 @@ export function PropOut3(...deps: any): any {
 
 					// update any other output <span> elements that are dependent on this property's value
 					for (let dep of deps) {
-						log.highlight(`Adding SetElementContent('${dep}') to output property ${propName}`);
+						log.highlight(`PropOut3: calling SetElementContent('${dep}') from setter for property ${propName}`);
 						this.SetElementContent(dep);
 					}
 				},
@@ -232,7 +232,7 @@ export function PropOut2(depsOrTarget?: string[]|Object, _?: string): any {
 					// update any other output <span> elements that are dependent on this property's value
 					if (Array.isArray(depsOrTarget)) {
 						for (let dep of depsOrTarget) {
-							log.highlight(`Adding SetElementContent('${dep}') to output property ${propName}`);
+							log.highlight(`PropOut2: calling SetElementContent('${dep}') from setter for property ${propName}`);
 							this.SetElementContent(dep);
 						}
 					}
@@ -273,7 +273,7 @@ export function PropOut(...outputDependencies: string[]): (target: Object, propN
 				if (outputDependencies == undefined)
 					return;
 				for (let dep of outputDependencies) {
-					log.highlight(`Adding SetElementContent('${dep}') to output property ${propName}`);
+					log.highlight(`PropOut1: calling SetElementContent('${dep}') from setter for property ${propName}`);
 					this.SetElementContent(dep);
 				}
 			},
