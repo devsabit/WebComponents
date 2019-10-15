@@ -250,14 +250,14 @@ export default class TemplateParser
 		let dataAttrib = '{dataAttrib}';
 		let propValue = '{propValue}';
 
-		let htmlOut = this.parseHandlerbar(htmlIn, /{{[A-Za-z0-9_-]+}}/gm, this.parseEs6Template`<span ${dataAttrib}>${propValue}</span>`);
+		let htmlOut = this.parseHandlerbar(htmlIn, /{{[A-Za-z0-9_.-]+}}/gm, this.parseEs6Template`<span ${dataAttrib}>${propValue}</span>`);
 
 		return htmlOut;
 	}
 
 	private replaceOneTimeHandlerbars(htmlIn: string): string {
 		let propValue = '{propValue}';
-		let htmlOut = this.parseHandlerbar(htmlIn, /\[\[[A-Za-z0-9_-]+\]\]/gm, this.parseEs6Template`${propValue}`);
+		let htmlOut = this.parseHandlerbar(htmlIn, /\[\[[A-Za-z0-9_.-]+\]\]/gm, this.parseEs6Template`${propValue}`);
 		return htmlOut;
 	}
 

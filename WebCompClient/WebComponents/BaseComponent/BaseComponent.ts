@@ -126,24 +126,35 @@ export default class BaseComponent extends HTMLElement
 		return fn as unknown as EventListener;
 	}
 
-	private getNestedPropValue(path: string): any {
-		let result = path.split('.').reduce((obj:any, key:keyof any) => obj[key]);
-		return result;
+	private getNestedValue(path: string): any {
+		let obj = this;
+		if (path.startsWith('this.'))
+			path = path.slice(5);
+		let value = path.split('.').reduce((obj: any, key: keyof any) => obj?.[key], obj);
+		return value;
 	}
 
 	public GetPropValue(propName: string): this[keyof this] {
-		// top level fields props will be this.field or this.prop
-		// what  about nested data such as this.dto.forename?
-		let nestedVal = this.getNestedPropValue(propName);
-		log.debug(`propName=${propName}, nestedVal=${nestedVal}`);
-
-		let propKey = propName as keyof this;
-		if (!(propKey in this)) {
-			log.error(`HTML Template Error: Property/field '${propKey}' does not exist in ${this.constructor.name}. You need to declare this in ${this.constructor.name}.ts as well as adding the necessary decorator (@PropOut or @Attrib)`);
-			//return '<prop not declared>';
+		// top level class members will be fieldName or propName
+		// need to also find nested props such as this.dto.forename
+		let propValue: any = undefined;
+		if (propName.indexOf('.') >= 0) {
+			// nested property ref
+			propValue = this.getNestedValue(propName);
+			log.debug(`nested propName=${propName}, nested propVal=${propValue}`);
+			if (propValue === undefined)
+				log.error(`Could not find nested property '${propName}'`);
 		}
-		let propValue = this[propKey];
-		return propValue;
+		else {
+			// non-nested prop
+			let propKey = propName as keyof this;
+			if (propKey in this)
+				propValue = this[propKey];
+			else
+				log.error(`HTML Template Error: Property/field '${propKey}' does not exist in ${this.constructor.name}. You need to declare this in ${this.constructor.name}.ts as well as adding the necessary decorator (@PropOut or @Attrib)`);
+		}
+
+		return (propValue === undefined) ? `{{?${propName}?}}` : propValue;
 	}
 
 	public getDataAttribWco(propName: keyof this): string {

@@ -7,11 +7,13 @@ import { log } from '../BaseComponent/Logger.js';
 export default class PersonForm extends BaseInputForm<Person> {
 
 	// input form DTO is declared in base class BaseInputForm<T>
-	//protected dto: Person = new Person();
+	@PropOut3 protected dto: Person = new Person();
 
-	@PropOut3 forename: string = '';
-	@PropOut3 surname: string = '';
+	//@PropOut3 forename: string = 'forename';
+	//@PropOut3 surname: string = 'surname';
 	@PropOut3 alive: boolean = true;
+
+	@PropOut3 test: string = "Some data";
 
 	// ctor
 	constructor() {
