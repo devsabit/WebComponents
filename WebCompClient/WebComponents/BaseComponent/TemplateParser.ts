@@ -1,4 +1,5 @@
-﻿import BaseComponent from './BaseComponent.js';
+﻿import { Freeze } from './PropDecorator.js';
+import BaseComponent from './BaseComponent.js';
 import { log, assert } from '../BaseComponent/Logger.js';
 
 interface Ies6StringTemplate {
@@ -6,8 +7,8 @@ interface Ies6StringTemplate {
 	templateValues: ReadonlyArray<string>,
 }
 
-export default class TemplateParser
-{
+@Freeze
+export default class TemplateParser {
 	// fields and props
 	private eventCount: number = 1;
 	private inputCountMap = new Map<string, number>();
@@ -30,7 +31,7 @@ export default class TemplateParser
 			log.error(`BaseComponent.AddEventHandler(): HTML element with attrib ${attribName} was not found within component ${this.component.TagName}`);
 			return;
 		}
-		assert(els.length == 1);
+		assert(els.length == 1, `TemplateParser.AddEventHandler(): Expected to find one attribute with name '${attribName}', but found ${els.length}`);
 		let el = els[0];
 
 		// check to see if code specifies a function name
@@ -53,7 +54,7 @@ export default class TemplateParser
 		// <input> element will have a data-wci- prefix
 		// other elements with events will have a data-wce- prefix
 		let dataAttrib = element.match(/data-wc.-\w+/);
-		assert(dataAttrib != null);
+		assert(dataAttrib != null, `TemplateParser.getDataAttrib(): Could not find attribute data-wcx-xxx inside this html element: ${element}`);
 		return dataAttrib[0];
 	}
 
@@ -65,8 +66,7 @@ export default class TemplateParser
 		const dataAttrib = this.getDataAttrib(element);
 
 		let events: string[] = this.getEventsInElement(element);
-		for (let event of events)
-		{
+		for (let event of events) {
 			let eventName = this.getAttribName(event.slice(1));	// gets click from @click="this.count++"
 			let code = this.getAttribValue(event);							// gets this.count++ from @click="this.count++"
 
@@ -85,7 +85,7 @@ export default class TemplateParser
 	private getAttribValue(attribNameValue: string): string {
 		// extracts value from name="value" string
 		let value = attribNameValue.match(/"[^"]*"/);
-		assert(value != null);
+		assert(value != null, `TemplateParser.getAttribValue(): Could not find attribute name within this name-value string: ${attribNameValue}`);
 		return value[0].slice(1, -1);	// remove quotes from match
 
 		//let quote1 = attribNameValue.indexOf('"');
@@ -102,7 +102,8 @@ export default class TemplateParser
 	private getAttribName(attribNameValue: string): string {
 		// extracts name from name="value" string
 		let name = attribNameValue.match(/[^=]+=/);
-		assert(name != null);
+		assert(name != null, `TemplateParser.getAttribValue(): Could not find attribute value within this name-value string: ${attribNameValue}`);
+
 		return name[0].slice(0, -1);	// remove trailing = sign
 	}
 
@@ -117,7 +118,7 @@ export default class TemplateParser
 		let dataAttrib = this.component.getDataAttribWci(name);						// convert to input data attribute: data-wci-age
 
 		// if we have radio buttons, multiple input fields will exist with the same name attribute, so need to give different data-wci- values
-		let inputFieldCount: number|undefined = this.inputCountMap.get(dataAttrib);
+		let inputFieldCount: number | undefined = this.inputCountMap.get(dataAttrib);
 		if (inputFieldCount == undefined)
 			inputFieldCount = 1;
 		let countString = (inputFieldCount === 1) ? '' : inputFieldCount.toString();
@@ -134,18 +135,76 @@ export default class TemplateParser
 		return result;
 	}
 
-	private ParseTemplate(templateElement: string): string {
-		log.info(`Parsing <template> element: ${templateElement}`);
-
-		// append data attribute data-wci-{prop}n to input field
-		let dataAttribName = this.component.getDataAttribWct();	// convert to input data attribute: data-wct-xxx-xxxx
-
-		return templateElement.slice(0, -1) + ` ${dataAttribName}>`;							// append to input element
+	private async fileExists(filePath: string): Promise<boolean> {
+		try {
+			const response = await fetch(filePath, { method: 'HEAD', cache: 'no-cache' });
+			return (response.status === 200);
+		} catch (error) {
+			//log.dump(error);
+			return false;
+		}
 	}
 
-	private parseTemplateElement(htmlTemplate: string): string {
+	private async CreateTemplateElement(): Promise<string> {
+		// add data-wct-xxx attribute and also append css include
+		log.info(`Creating <template> element`);
+
+		// see if CSS file exists, if so, add include
+		let cssInclude = '';
+		let cssFilename = `/WebComponents/${this.component.ClassName}/${this.component.ClassName}.css`;
+		let cssFound = await this.fileExists(cssFilename);
+		if (cssFound)
+			cssInclude = `\r\n<link async rel="stylesheet" href="${cssFilename}">\r\n`;
+
+		// get data-wct-xxx attribute to <template> element
+		let dataAttribName = this.component.getDataAttribWct();	// convert to template data attribute: data-wct-xxx-xxxx
+
+		let htmlOut = `<template ${dataAttribName}>${cssInclude}`;
+
+		return htmlOut;
+	}
+
+	//private async ParseTemplate(templateElement: string): Promise<string> {
+	//	// add data-wct-xxx attribute and also append css include
+	//	log.info(`Parsing <template> element: ${templateElement}`);
+
+	//	// append data-wct-xxx attribute to template element
+	//	let dataAttribName = this.component.getDataAttribWct();	// convert to template data attribute: data-wct-xxx-xxxx
+
+	//	let htmlOut: string = templateElement.slice(0, -1) + ` ${dataAttribName}>`;							// append to input element
+
+	//	// append template include
+	//	// 	<link async rel="stylesheet" href="/WebComponents/MyContent/MyContent.css">
+	//	let cssFilename = `/WebComponents/${this.component.ClassName}/${this.component.ClassName}.css`;
+	//	let cssFound = await this.fileExists(cssFilename);
+	//	if (cssFound) {
+	//		let cssInclude = `\r\n<link async rel="stylesheet" href="/WebComponents/${this.component.ClassName}/${this.component.ClassName}.css">\r\n`;
+	//		htmlOut += cssInclude;
+	//	}
+
+	//	return htmlOut;
+	//}
+
+	//private async replaceAsync(sourceString: string, regex: RegExp, asyncFn: Function) {
+	//	let promises: Array<Promise<string>> = [];
+	//	sourceString.replace(regex, (match, ...args) => {
+	//		let promise = asyncFn(match, ...args);
+	//		promises.push(promise);
+	//	});
+	//	let data = await Promise.all(promises);
+	//	return searchString.replace(regex, () => data.shift());
+	//}
+
+	private async parseTemplateElement(htmlTemplate: string): Promise<string> {
 		// parse <template> elements and add data-wct-... id attribute
-		let result = htmlTemplate.replace(/<template>/gm, (key: string): string => this.ParseTemplate(key));
+		//let result = htmlTemplate.replace(/<template>/gm, (key: string) => this.ParseTemplate(key));
+		let matches = htmlTemplate.match(/<template>/gm);
+		let count = (matches == null) ? 0 : matches.length;
+		assert(count === 1, 'TemplateParser.parseTemplateElement(): Did not find only one <template> string');
+
+		let replaceString = await this.CreateTemplateElement();
+		let result = htmlTemplate.replace(/<template>/gm, replaceString);
+
 		return result;
 	}
 
@@ -153,7 +212,7 @@ export default class TemplateParser
 	{
 		// returns array of events in format @event="handling code or function name"
 		let eventsFounds = element.match(/@[a-z]+[^=]*=[^"]*"[^"]+"/g);
-		assert(eventsFounds != null);	// only elements with events get passed in
+		assert(eventsFounds != null, `TemplateParser.getEventsInElement(): No events found`);	// only elements with events get passed in
 		return eventsFounds;
 	}
 
@@ -214,6 +273,11 @@ export default class TemplateParser
 			// [1]	`<span data-wco-${propName}>${propValue}</span>`;
 			// [2]	`${propValue}`
 			let propName: string = this.removeHandlebars(key);
+
+			// keep track of nested output names
+			if (propName.indexOf('.') >= 0)
+				this.component.addNestedOutputField(propName);
+
 			let dataAttrib: string = this.component.getDataAttribWco(propName as keyof BaseComponent);
 			let propValue: string = this.component.GetPropValue(propName) as string;
 			let actualValues: string[] = [];
@@ -284,13 +348,13 @@ export default class TemplateParser
 	//		actualValues.push(propValue);
 
 	//	let spanString = this.formatEs6Template(es6Template.staticStrings, actualValues);
-	//	log.highlight(spanString);
+	//	log.info(spanString);
 	//}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private parseHtmlTemplate(htmlTemplate: string): string {
+	private async parseHtmlTemplate(htmlTemplate: string): Promise<string> {
 		//
 		// Note matchAll not offically available until 2020, but allegedly can be polyfilled by TypeScript:
 		//	https://stackoverflow.com/questions/55499555/property-matchall-does-not-exist-on-type-string
@@ -330,8 +394,8 @@ export default class TemplateParser
 		//	return staticSub;
 		//});
 
-		// parse <template> elements and add unnique data-wct-... attribute
-		parsedHtml = this.parseTemplateElement(parsedHtml);
+		// parse <template> element and add unique data-wct-... attribute
+		parsedHtml = await this.parseTemplateElement(parsedHtml);
 
 		// parse <input> elments and add data-wci-... attribs to all inputs
 		parsedHtml = this.parseInputElements(parsedHtml);
@@ -373,7 +437,7 @@ export default class TemplateParser
 	// load html template from server and then clone and attach
 	public async loadAndParseTemplate() {
 		let html = await this.loadHtmlTemplate();
-		let parsedTemplate = this.parseHtmlTemplate(html);
+		let parsedTemplate = await this.parseHtmlTemplate(html);
 		this.insertTemplateIntoDocument(parsedTemplate);
 		this.component.TemplateHtml = parsedTemplate;
 

@@ -1,4 +1,5 @@
 ﻿import BaseComponent from './BaseComponent.js';
+import { Freeze } from './PropDecorator.js';
 import { log, assert } from '../BaseComponent/Logger.js';
 
 //interface IConstructor<T> {
@@ -13,6 +14,7 @@ import { log, assert } from '../BaseComponent/Logger.js';
 //	return new type();
 //}
 
+@Freeze
 export default class BaseInputForm<T extends object> extends BaseComponent {
 	public static tag: string;// Not used by this class, but derived copy used by sublcasses
 
@@ -47,7 +49,7 @@ export default class BaseInputForm<T extends object> extends BaseComponent {
 		//this.dto = this.copyFormToDtoA<T>(person);
 
 		this.dto = this.copyFormToDtoA<T>(this.dto);
-		log.debug(this.dto);
+		log.dump(this.dto);
 	}
 
 	//private convertStringToType<T>(prop: PropValue<T>, stringProp: string): boolean | number | string | Date {

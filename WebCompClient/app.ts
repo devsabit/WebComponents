@@ -26,7 +26,7 @@ async function checkComponentRegistered<T extends BaseComponent>(classDesc: Cons
 	}
 }
 
-// these are statically loaded as they all appear on the index.html page
+// these are statically loaded as they all appear within the index.html page
 import MyHeader from './WebComponents/MyHeader/MyHeader.js'
 checkComponentRegistered(MyHeader);
 

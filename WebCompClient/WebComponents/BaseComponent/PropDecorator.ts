@@ -43,7 +43,7 @@ import { log, assert } from '../BaseComponent/Logger.js';
 
 // @Component class decorator
 export function Component<T extends BaseComponent>(tagName: string): Function {
-	log.highlight(`> Class decorator called for : ${tagName}`);
+	log.info(`> Class decorator called for : ${tagName}`);
 
 	return (classDesc: Constructor<T> /*ClassDescriptor*/) => {
 		log.dump(classDesc, '>> classDesc');
@@ -51,26 +51,41 @@ export function Component<T extends BaseComponent>(tagName: string): Function {
 		// check that static tag field is defined, if not, then add it to class
 		const fieldName: string = 'tag';
 		if (!classDesc.hasOwnProperty(fieldName)) {
-			log.highlight(`>> Class ${classDesc.constructor.name} does not have own static field '${fieldName}', attempting to define and initialise to '${tagName}' now`);
+			log.info(`>> Class ${classDesc.constructor.name} does not have own static field '${fieldName}', attempting to define and initialise to '${tagName}' now`);
 			Object.defineProperty(classDesc, fieldName, { value: tagName });
 		}
 
 		(ctor: Constructor<T>) => {
 			log.dump(ctor, '>>> ctor');
-			//log.highlight(`>>> Trying to set static field BaseComponent.tag = ${tagName}`);
+			//log.info(`>>> Trying to set static field BaseComponent.tag = ${tagName}`);
 			//BaseComponent.tag = tagName;
-			//log.highlight(`>>> static field was set BaseComponent.tag = ${BaseComponent.tag}`);
+			//log.info(`>>> static field was set BaseComponent.tag = ${BaseComponent.tag}`);
 		}
 
 		// register the component
-		log.highlight(`>> Registering component class=${classDesc.constructor.name}, html tag=${tagName}`);
+		log.info(`>> Registering component class=${classDesc.constructor.name}, html tag=${tagName}`);
 		customElements.define(tagName, classDesc);
 	}
 }
 
+// @Freeze class decorator
+export function Freeze(target: Function): void {
+	let classDef = target.toString();
+	let bracketPos: number = classDef.indexOf('{')
+	let className = classDef.slice(0, bracketPos);
+	console.log(`@Freeze called for ${className}`);
+	Object.freeze(target);
+	Object.freeze(target.prototype);
+	//return (classDesc: Constructor<T>) => {
+	//	let ownProps = Reflect.getOwnPropertyDescriptor.
+	//	for (prop of props)
+	//		prop.freeze();
+	//}
+}
+
 // @Component2 class decorator
 //export function Component2<T extends BaseComponent>(tagName: string): Function {
-//	log.highlight(`> Class decorator2 called for : ${tagName}`);
+//	log.info(`> Class decorator2 called for : ${tagName}`);
 
 //	return (classDesc: Constructor<T>) => {
 //		log.dump(classDesc, '>> classDesc');
@@ -80,7 +95,7 @@ export function Component<T extends BaseComponent>(tagName: string): Function {
 //		}
 
 //		// register the component
-//		log.highlight(`>> Registering component class=${classDesc.constructor.name}, html tag=${tagName}`);
+//		log.info(`>> Registering component class=${classDesc.constructor.name}, html tag=${tagName}`);
 //		customElements.define(tagName, classDesc);
 //	}
 //}
@@ -131,10 +146,16 @@ function definePropWithoutDeps(target: Object, propName: string): any {
 	return Object.defineProperty(target, propName, {
 		get: function () { return this['_' + propName]; },
 		set: function (value: any) {
-			log.info(`${this.constructor.name}.${propName} = ${value}`);
+			log.info(`definePropWithoutDeps(): ${this.constructor.name}.${propName} = ${value}`);
 			this['_' + propName] = value;
-			this.SetElementContent(propName);	// update corresponding output <span> whenever this property changes
-			log.highlight(`No deps to update for prop '${propName}'`)
+			if (typeof value === 'object') {
+				log.highlight(`definePropWithoutDeps(): object detected, calling UpdateChildElementsContent('${propName}')`);
+				this.UpdateChildElementsContent(propName);
+			}
+			else {
+				this.SetElementContent(propName);	// update corresponding output <span> whenever this property changes
+			}
+			log.info(`No other deps to update for prop '${propName}'`)
 		}
 	});
 }
@@ -145,7 +166,7 @@ function definePropWithoutDeps(target: Object, propName: string): any {
 	//		log.info(`${this.constructor.name}.${propName} = ${value}`);
 	//		this['_' + propName] = value;
 	//		this.SetElementContent(propName);	// update corresponding output <span> whenever this property changes
-	//		log.highlight(`No deps to update for prop '${propName}'`);
+	//		log.info(`No deps to update for prop '${propName}'`);
 	//	},
 	//	enumerable: true,
 	//	configurable: true
@@ -167,12 +188,12 @@ export function PropOut3(...deps: any): any {
 	//let target: Object = deps[0];
 	//let propName: string = deps[1];
 
-	log.highlight(`typeof(deps[0])=${typeof (deps[0])}`);
+	log.info(`typeof(deps[0])=${typeof (deps[0])}`);
 	let stringArgs: boolean = typeof deps[0] === 'string';
 	if (stringArgs) {
 		// this is a property decorator factory, this returns the decorator function
 		// when this property changes, we need to ensure we update all the dependent properties specified on the property decorator
-		log.highlight(`Defining setter with deps`);
+		log.info(`Defining setter with deps`);
 		return function (target: Object, propName: string) {
 			Object.defineProperty(target, propName, {
 				get: function () { return this['_' + propName]; },
@@ -183,7 +204,7 @@ export function PropOut3(...deps: any): any {
 
 					// update any other output <span> elements that are dependent on this property's value
 					for (let dep of deps) {
-						log.highlight(`PropOut3: calling SetElementContent('${dep}') from setter for property ${propName}`);
+						log.info(`PropOut3: calling SetElementContent('${dep}') from setter for property ${propName}`);
 						this.SetElementContent(dep);
 					}
 				},
@@ -194,7 +215,7 @@ export function PropOut3(...deps: any): any {
 	}
 	else {
 		// not a list of string args, therefore this is a property decorator (not a decorator factory), hence there are no property dependencies specified
-		log.highlight(`Defining setter **without** deps`);
+		log.info(`Defining setter **without** deps`);
 		if (deps[0] == undefined) {
 			// user has specified @PropOut() ... (with brackets but without parameters, treat the same as @PropOut ...)
 			return function (target: Object, propName: string) {
@@ -215,12 +236,12 @@ export function PropOut2(deps: string[]): any;									// @PropOut(...) public m
 export function PropOut2(target: Object, propName: string): any;// @PropOut public myProp: string
 export function PropOut2(depsOrTarget?: string[]|Object, _?: string): any {
 	let typeofDeps = typeof depsOrTarget;
-	log.highlight(`typeofDeps=${typeofDeps}`);
+	log.info(`typeofDeps=${typeofDeps}`);
 	//let stringArray: boolean = ((depsOrTarget?.length >= 1) && (typeof depsOrTarget[0] === 'string'));
 	let stringArray: boolean = (Array.isArray(depsOrTarget) && (typeof depsOrTarget[0] === 'string'));
-	log.highlight(`stringArray = ${stringArray}`);
+	log.info(`stringArray = ${stringArray}`);
 	if (stringArray) {
-		log.highlight(`Defining setter with deps`);
+		log.info(`Defining setter with deps`);
 		return function (target: Object, propName: string) {
 			Object.defineProperty(target, propName, {
 				get: function () { return this['_' + propName]; },
@@ -232,7 +253,7 @@ export function PropOut2(depsOrTarget?: string[]|Object, _?: string): any {
 					// update any other output <span> elements that are dependent on this property's value
 					if (Array.isArray(depsOrTarget)) {
 						for (let dep of depsOrTarget) {
-							log.highlight(`PropOut2: calling SetElementContent('${dep}') from setter for property ${propName}`);
+							log.info(`PropOut2: calling SetElementContent('${dep}') from setter for property ${propName}`);
 							this.SetElementContent(dep);
 						}
 					}
@@ -243,7 +264,7 @@ export function PropOut2(depsOrTarget?: string[]|Object, _?: string): any {
 		}
 	}
 	else {
-		log.highlight(`Defining setter **without** deps`);
+		log.info(`Defining setter **without** deps`);
 		return (target: Object, propName: string) => {
 			Object.defineProperty(target, propName, {
 				get: function () { return this['_' + propName]; },
@@ -273,7 +294,7 @@ export function PropOut(...outputDependencies: string[]): (target: Object, propN
 				if (outputDependencies == undefined)
 					return;
 				for (let dep of outputDependencies) {
-					log.highlight(`PropOut1: calling SetElementContent('${dep}') from setter for property ${propName}`);
+					log.info(`PropOut1: calling SetElementContent('${dep}') from setter for property ${propName}`);
 					this.SetElementContent(dep);
 				}
 			},
@@ -286,12 +307,12 @@ export function PropOut(...outputDependencies: string[]): (target: Object, propN
 // property decorator for custom attributes
 export function Attrib<T extends BaseComponent>(target: T, fieldName: string) {
 	const kebabName: string = fieldName.replace(/_/g, '-');
-	log.highlight(`@Attrib called, fieldName=${fieldName}, kebabName=${kebabName}`);
+	log.info(`@Attrib called, fieldName=${fieldName}, kebabName=${kebabName}`);
 
 	// if not present, create static _observedAttributes field and initialise with {fieldName}
 	// if it already exists, add {fieldName} to the list
 	if (!target.hasOwnProperty('_observedAttributes')) {
-		log.highlight(`Class ${target.constructor.name} does not have own field '_observedAttributes', attempting to define now`);
+		log.info(`Class ${target.constructor.name} does not have own field '_observedAttributes', attempting to define now`);
 		//let propValues: string[] = ['bacon', target.constructor.name, fieldName];
 		let propValues: string[] = [fieldName];
 		Object.defineProperty(target, '_observedAttributes', { value: propValues });
@@ -299,7 +320,7 @@ export function Attrib<T extends BaseComponent>(target: T, fieldName: string) {
 		log.dump(actualValue, `${target.constructor.name}._observedAttributes`);
 	}
 	else {
-		log.highlight(`Class ${target.constructor.name} already has own field '_observedAttributes'`);
+		log.info(`Class ${target.constructor.name} already has own field '_observedAttributes'`);
 		let obsAttrs: string[] = (target as any)._observedAttributes;
 		assert(obsAttrs != undefined, `Can't find _observedAttributes on ${target.constructor.name}`);
 		log.dump(obsAttrs, 'Old value of obsAttrs');

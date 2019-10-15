@@ -28,10 +28,12 @@
 //
 //	static get observedAttributes()		returns string array of observed attributes
 
+//import { Freeze } from './PropDecorator.js';
 import { Router, IComponent, IRoute } from './Router.js';
 import TemplateParser from './TemplateParser.js';
 import { log, assert } from './Logger.js';
 
+//@Freeze
 export default class BaseComponent extends HTMLElement
 {
 	// Note that TypeScript is unable to reference derived class static members from the base class without some casting, so
@@ -58,10 +60,27 @@ export default class BaseComponent extends HTMLElement
 	//	(this.constructor as any).tag = value;
 	//}
 
+	// get component name (class name) in PascalCase rather than kebab-case: MyNewComponent vs my-new-component
+	public get ClassName() {
+		//return BaseComponent.getClassName(this.TagName);
+		return this.constructor.name;
+	}
+
+	public static getClassName(tag: string): string {
+		var name: string = tag.replace(/-([a-z])/gi, (_, part: string) => {
+			log.highlight(`part=${part}`);
+			return part.toUpperCase();
+		});
+		log.highlight(`getClassName() converted ${tag} to ${name}`);
+		return name;
+	}
+
+	private _knownOutputFields: Array<string> = [];
+
 	// don't create empty array, component must derive own version if required
 	public static _observedAttributes: string[] = ['Base'];
 	public static get observedAttributes(): string[] {
-		log.highlight(`get ${this.constructor.name}.observedAttributes() called`);
+		log.info(`get ${this.constructor.name}.observedAttributes() called`);
 		log.dump(this._observedAttributes, 'this._observedAttributes');
 		log.dump((this.constructor as any)._observedAttributes, '(this.constructor as any)._observedAttributes');
 		return this._observedAttributes;
@@ -134,7 +153,7 @@ export default class BaseComponent extends HTMLElement
 		return value;
 	}
 
-	public GetPropValue(propName: string): this[keyof this] {
+	public GetPropValue(propName: string): string { //this[keyof this] {
 		// top level class members will be fieldName or propName
 		// need to also find nested props such as this.dto.forename
 		let propValue: any = undefined;
@@ -180,6 +199,8 @@ export default class BaseComponent extends HTMLElement
 			return {} as NodeListOf<T>;
 		}
 
+		// nested path attribute names contain '.' char, this needs to be escaped with \\
+		attribName = attribName.replace(/\./g, '\\.');
 		let elems = shad.querySelectorAll<T>(`[${attribName}]`);
 		if (elems == null) {
 			log.error(`GetShadowElement(): element with attribute ${attribName} not found`);
@@ -189,31 +210,45 @@ export default class BaseComponent extends HTMLElement
 		return elems;
 	}
 
-	//GetShadowElementById<T extends HTMLElement>(id: string): Nullable<T> {
-	//	// when we initialise @PropOut properties, the static initialisation calls SetElementContent() -> GetShadowElement() before the ctor has created the shadow DOM
-	//	let shad = this.shadowRoot;
-	//	if (shad == null) {
-	//		log.error('GetShadowElement(): this.shadowRoot is null');
-	//		return null;
-	//	}
+	public addNestedOutputField(fullPathFieldName: string) {
+		assert(fullPathFieldName.indexOf('.') >= 0, "This should only be used for tracking output fields with nested paths");
+		this._knownOutputFields.push(fullPathFieldName);
+		log.highlight(`Adding output field '${fullPathFieldName}' to array _knownOutputFields`);
+	}
 
-	//	let el = shad.querySelector<T>(`#${id}`);
-	//	if (el == null) {
-	//		log.error(`GetShadowElement(): element with id ${id} not found`);
-	//		return null;
-	//	}
+	private getKnownOutputField(partialPath: keyof this): string[] {
+		let matches = this._knownOutputFields.filter((field) => field.startsWith(partialPath + '.'));
+		return matches;
+	}
 
-	//	return el;
-	//}
+	// called for hierarchical nested object structures to ensure any relevant child properties have their HTML output fields updated
+	public UpdateChildElementsContent(propName: keyof this) {
+		//let path = 'propName';
+		const rootObject: this[keyof this] = this[propName];		// e.g. this.dto
+		assert(typeof rootObject === 'object', 'UpdateChildElementsContent(): This function should only be called for objects');
+		let dependentFields = this.getKnownOutputField(propName);
+		for (let field of dependentFields) {
+			log.highlight(`updating dep field=${field}`);
+			this.SetElementContent(field as keyof this);
+		}
+
+		//for (let fieldName in rootObject) {
+		//	let fullPathFieldName = `${path}${fieldName}`;
+		//	if (this.isKnownOutputField(fullPathFieldName))
+		//		this.SetElementContent(fullPathFieldName as keyof this);
+		//}
+	}
 
 	public SetElementContent(propName: keyof this) {
+		// Return silently if template not yet processed - can't update DOM element if it doesn't exist yet.
+		// Static initialisers cause this to happen, it's a non-issue since connectedCallback() will also cause output fields/props to update
 		if (this.TemplateHtml == "") {
-			log.info("SetElementContent(): TemplateHtml is null, ignoring call (static initialisation will cause this, it's not an issue)");
+			//log.info('SetElementContent(): TemplateHtml is null, deferring call until connectedCallback()');
 			return;
 		}
 
 		let attribName = this.getDataAttribWco(propName);
-		let propValue: string = String(this[propName]);
+		let propValue = this.GetPropValue(propName as string) as string;
 
 		let elems = this.getShadowElementsByAttribName(attribName);
 		if (elems == null || elems.length === 0)
@@ -224,7 +259,7 @@ export default class BaseComponent extends HTMLElement
 		}
 	}
 
-	// DOM element loaded event
+	// DOM custom element loaded event
 	protected async connectedCallback() {
 		log.event(`${this.constructor.name}.connectedCallback() called`);
 
@@ -251,14 +286,6 @@ export default class BaseComponent extends HTMLElement
 		log.event(`${this.constructor.name}.disconnectedCallback() called`);
 	}
 
-	//setProp<K extends keyof this>(propName: K, propValue: this[K]) {
-	//	this[propName] = propValue;
-	//}
-
-	//getProp<K extends keyof this>(propName: K): this[K] {
-	//	return this[propName];
-	//}
-
 	protected async attributeChangedCallback(
 		custAttrName: keyof this,
 		oldVal: this[keyof this],
@@ -277,4 +304,12 @@ export default class BaseComponent extends HTMLElement
 		let route: IRoute = { slug, tag, parent };
 		BaseComponent.Router.loadComponent(route, setState);
 	}
+
+	//setProp<K extends keyof this>(propName: K, propValue: this[K]) {
+	//	this[propName] = propValue;
+	//}
+
+	//getProp<K extends keyof this>(propName: K): this[K] {
+	//	return this[propName];
+	//}
 }

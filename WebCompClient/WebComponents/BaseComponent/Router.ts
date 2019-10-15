@@ -1,4 +1,5 @@
 ﻿import BaseComponent from './BaseComponent.js';
+import { Freeze } from './PropDecorator.js';
 import { log, assert } from '../BaseComponent/Logger.js';
 
 export interface IComponent {
@@ -11,6 +12,7 @@ export interface IComponent {
 // a route is the just a component without a specified component instance
 export type IRoute = Omit<IComponent, 'instance'>;
 
+@Freeze
 export class Router {
 
 	// fields
@@ -98,8 +100,8 @@ export class Router {
 			// not found, create new instance of component
 
 			// in case this component hasn't been registered, attempt a dynamic import
-			let componentName = route.tag.replace(/-/g, '');
-			let componentPath = `/WebComponents/${componentName}/${componentName}.js`;
+			let className = BaseComponent.getClassName(route.tag);
+			let componentPath = `/WebComponents/${className}/${className}.js`;
 			try {
 				//type ModuleType = ReturnType<typeof module>;
 				let module = await import(componentPath);
@@ -112,7 +114,7 @@ export class Router {
 
 			let compClassCtor = window.customElements.get(route.tag);
 			if (compClassCtor === undefined) {
-				log.error(`${tag} is not [yet?] registered, have you called customElements.define('${tag}', <class name>) in the app.ts file?`);
+				log.error(`${tag} is not [yet?] registered, have you imported it either in the app.ts file, or using an import statment in the parent component (if nested)?`);
 				return;
 			}
 			//let className = compClassCtor.constructor.name;
@@ -122,7 +124,7 @@ export class Router {
 		else {
 			// found in routes list, re-use old component if found
 			log.info(`Found existing component ${tag}`);
-			assert(component.instance != null);
+			assert(component.instance != null, `Router.loadComponent(): Found component '${component.tag}', but instance is null`);
 			componentToInsert = component.instance;
 		}
 
@@ -147,10 +149,27 @@ export class Router {
 		// update DOM with correct component, this will fire the connectedCallback() event
 		parentNode.replaceChild(componentToInsert, componentToReplace);
 
+		// scan DOM to see if we have any unknown elements (indicates custom component loading failure)
+		this.checkForFailedComponents();
+
 		// handle url changed events (don't do this if user clicked Back/Forwards buttons)
 		if (setState) {
 			log.info(`Calling history.pushstate(${JSON.stringify(route)})`);
 			history.pushState(route, 'title', route.slug);
+		}
+	}
+
+	private checkForFailedComponents() {
+		log.highlight('Entered checkForFailedComponents()');
+		// scan entire light DOM looking for HTMLUnknownElement
+		let lightElement = document.querySelectorAll('body *');
+		for (let el of lightElement) {
+			if (el instanceof HTMLElement)
+				log.info(`Found HTMLElement, tag is : ${(el as HTMLElement).tagName}`);
+			if (el instanceof HTMLUnknownElement)
+				log.highlight(`Found HTMLUnknownElement, tag is : ${(el as HTMLUnknownElement).tagName}`);
+			if (el instanceof HTMLInputElement)
+				log.error(`Found HTMLInputElement, tag is : ${(el as HTMLInputElement).tagName}`);
 		}
 	}
 

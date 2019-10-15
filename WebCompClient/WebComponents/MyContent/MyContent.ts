@@ -31,7 +31,7 @@ export default class MyContent extends BaseComponent {
 		let requiredRoute = BaseComponent.Router.findRoute(slug);
 		if (requiredRoute.tag !== this.TagName) /*|| requiredRoute.slug |= BaseComponent.Router.Slug)*/
 		{
-			log.highlight('Wrong route loaded by static index.html - trying to reload correct route:');
+			log.info('Wrong route loaded by static index.html - trying to reload correct route:');
 			log.debug(requiredRoute);
 			// wrong component loaded, so fire off reload
 			BaseComponent.Router.loadComponent(requiredRoute, false);

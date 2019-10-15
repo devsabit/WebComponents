@@ -1,10 +1,13 @@
-﻿export function assert(condition: boolean, msg?: string): asserts condition {
+﻿import { Freeze } from './PropDecorator.js';
+
+export function assert(condition: boolean, msg?: string): asserts condition {
 	if (!condition) {
 		log.error(`assert() failed : ${msg}`);
 		log.stack('Stack trace is:');
 	}
 }
 
+@Freeze
 export class Logger {
 
 	// ctor
