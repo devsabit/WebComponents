@@ -1,24 +1,81 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
-import { Component, PropOut3 } from '../BaseComponent/PropDecorator.js';
+//import GenericProxy from '../BaseComponent/GenericProxy.js';
+import ArrayProxy from '../BaseComponent/ArrayProxy.js';
+import { Component, Output } from '../BaseComponent/Decorators.js';
 import { log } from '../BaseComponent/Logger.js';
 
 @Component('my-content')
 export default class MyContent extends BaseComponent {
-
-	@PropOut3 public x: number = 7;
-	@PropOut3() public y: number = 11;
-	@PropOut3('total', 'mult') public a: number = 3;
-	@PropOut3('total', 'mult') public b: number = 5;
-	@PropOut3 public c: string = '';
-	@PropOut3() public d: string = 'hello';
+	@Output public x: number = 7;
+	@Output() public y: number = 11;
+	@Output('total', 'mult') public a: number = 3;	// total and mult have dependencies on a
+	@Output('total', 'mult') public b: number = 5;	// total and mult have dependencies on b
+	@Output public c: string = '';
+	@Output() public d: string = 'hello';
 
 	// computed properties
 	public get total(): number { return this.a + this.b	}
 	public get mult(): number { return this.a * this.b }
 	public readonly pi: number = Math.PI;
 
+	// dealing with output that has many dependencies
+	deps1 = class DependenciesInt {
+		constructor(private parent: MyContent) {
+		}
+
+		public get sum(): number { return this.parent.a + this.parent.b }
+		public get mult(): number { return this.parent.a * this.parent.b }
+		public get div(): number { return this.parent.a / this.parent.b }
+	}
+
+	//public deps1: Constructor<DependenciesInt>;
+	//@Output public deps2: DependenciesExt = new DependenciesExt();
+	//@Output public deps3: DependenciesNamespace = new DependenciesNamespace();
+
 	constructor() {
 		super();
+
+		let array = new Array<string>();
+		array.push('Geoff');
+		array.push('Wode');
+		array.push('rules!');
+
+		let proxy1 = new ArrayProxy<string>(array);
+		let item: string | undefined;
+		//let newLen: number;
+		//newLen = proxy1.push('Wode');
+		//log.info(`newLen=${newLen}`);
+
+		//newLen = proxy1.push('rules!');
+		//log.info(`newLen=${newLen}`);
+
+		//item = proxy1.pop();
+		//log.info(`item=${item}`);
+
+		//newLen = proxy1.unshift('unshift 1');
+		//log.info(`newLen=${newLen}`);
+
+		//newLen = proxy1.push('Pushed');
+		//log.info(`newLen=${newLen}`);
+
+		//item = 'item 0';
+		//proxy1[0] = item;	// fails with symbol?? idx
+		item = proxy1[0];
+		log.info(`proxy1[0]=${item}`);
+
+		//item = proxy1[0];
+		//log.info(`item=${item}`);
+
+		//newLen = proxy1.unshift('unshift 2');
+		//log.info(`newLen=${newLen}`);
+
+		log.highlight(proxy1.join(','));
+
+		//let proxy2 = new MyProxy<Array<string>>(array);
+		//proxy2.push('Geoff 2');
+		//proxy2.push('Wode 2');
+		//proxy2.push('rules 2!');
+		//log.highlight(proxy2.join(','));
 	}
 
 	protected async connectedCallback() {
@@ -55,5 +112,24 @@ export default class MyContent extends BaseComponent {
 	public onTotalChanged() {
 		// call this when A or B changes and total also needs to be updated
 	}
-
 }
+
+//class DependenciesExt extends MyContent {
+//	constructor() {
+//		super();
+//	}
+
+//	public get sum(): number { return this.a + this.b }
+//	public get mult(): number { return this.a * this.b }
+//	public get div(): number { return this.a / this.b }
+//}
+
+//export declare namespace MyContent {
+//	export class DependenciesNamespace {
+//		constructor(private parent: MyContent) { }
+
+//		public get sum(): number { return this.parent.a + this.parent.b }
+//		public get mult(): number { return this.parent.a * this.parent.b }
+//		public get div(): number { return this.parent.a / this.parent.b }
+//	}
+//}

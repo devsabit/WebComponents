@@ -1,5 +1,5 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
-import { Component } from '../BaseComponent/PropDecorator.js';
+import { Component } from '../BaseComponent/Decorators.js';
 import { log } from '../BaseComponent/Logger.js';
 import '../MyTime/MyTime.js';	// use unnamed import to ensure MyTime loaded
 

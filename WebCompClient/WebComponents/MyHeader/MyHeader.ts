@@ -1,5 +1,5 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
-import { Component, Attrib } from '../BaseComponent/PropDecorator.js';
+import { Component, Attrib } from '../BaseComponent/Decorators.js';
 //import { log } from '../BaseComponent/Logger.js';
 
 @Component('my-header')

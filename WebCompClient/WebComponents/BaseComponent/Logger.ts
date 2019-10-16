@@ -1,4 +1,4 @@
-﻿import { Freeze } from './PropDecorator.js';
+﻿import { Freeze } from './Decorators.js';
 
 export function assert(condition: boolean, msg?: string): asserts condition {
 	if (!condition) {

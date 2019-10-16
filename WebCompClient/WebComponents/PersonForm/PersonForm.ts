@@ -1,19 +1,19 @@
 ﻿import BaseInputForm from '../BaseComponent/BaseInputForm.js';
 import Person from './Person.js';
-import { Component, PropOut3 } from '../BaseComponent/PropDecorator.js';
+import { Component, Output } from '../BaseComponent/Decorators.js';
 import { log } from '../BaseComponent/Logger.js';
 
 @Component('person-form')
 export default class PersonForm extends BaseInputForm<Person> {
 
 	// input form DTO is declared in base class BaseInputForm<T>
-	@PropOut3 protected dto: Person = new Person();
+	@Output protected dto: Person = new Person();
 
 	//@PropOut3 forename: string = 'forename';
 	//@PropOut3 surname: string = 'surname';
-	@PropOut3 alive: boolean = true;
+	@Output alive: boolean = true;
 
-	@PropOut3 test: string = "Some data";
+	@Output test: string = "Some data";
 
 	// ctor
 	constructor() {

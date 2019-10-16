@@ -1,4 +1,4 @@
-﻿import { Freeze } from './PropDecorator.js';
+﻿import { Freeze } from './Decorators.js';
 import BaseComponent from './BaseComponent.js';
 import { log, assert } from '../BaseComponent/Logger.js';
 

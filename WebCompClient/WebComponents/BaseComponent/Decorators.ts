@@ -1,5 +1,5 @@
 ﻿import BaseComponent from './BaseComponent.js';
-import { log, assert } from '../BaseComponent/Logger.js';
+import { log, assert } from './Logger.js';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -181,9 +181,9 @@ function definePropWithoutDeps(target: Object, propName: string): any {
 //	deps: string[]
 //}
 
-export function PropOut3(...deps: string[]): (target: Object, propName: string) => void;
-export function PropOut3(target: Object, propName: string): void;
-export function PropOut3(...deps: any): any {
+export function Output(...deps: string[]): (target: Object, propName: string) => void;
+export function Output(target: Object, propName: string): void;
+export function Output(...deps: any): any {
 //export function PropOut3(...deps: (string|Object)[]) {
 	//let target: Object = deps[0];
 	//let propName: string = deps[1];

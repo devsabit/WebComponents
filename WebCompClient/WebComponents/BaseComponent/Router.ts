@@ -1,5 +1,5 @@
 ﻿import BaseComponent from './BaseComponent.js';
-import { Freeze } from './PropDecorator.js';
+import { Freeze } from './Decorators.js';
 import { log, assert } from '../BaseComponent/Logger.js';
 
 export interface IComponent {
