@@ -1,8 +1,14 @@
 ﻿import BaseComponent from '../BaseComponent/BaseComponent.js';
-//import GenericProxy from '../BaseComponent/GenericProxy.js';
+import ObjectProxy from '../BaseComponent/ObjectProxy.js';
 import ArrayProxy from '../BaseComponent/ArrayProxy.js';
 import { Component, Output } from '../BaseComponent/Decorators.js';
 import { log } from '../BaseComponent/Logger.js';
+
+class Person {
+	public constructor() { };
+	public forename: string = 'Geoff';
+	public surname: string = 'Wode';
+}
 
 @Component('my-content')
 export default class MyContent extends BaseComponent {
@@ -41,7 +47,10 @@ export default class MyContent extends BaseComponent {
 		array.push('rules!');
 
 		let proxy1 = new ArrayProxy<string>(array);
+		//let proxy2 = ArrayProxy.createProxyFrom(String);
+
 		let item: string | undefined;
+
 		//let newLen: number;
 		//newLen = proxy1.push('Wode');
 		//log.info(`newLen=${newLen}`);
@@ -76,6 +85,34 @@ export default class MyContent extends BaseComponent {
 		//proxy2.push('Wode 2');
 		//proxy2.push('rules 2!');
 		//log.highlight(proxy2.join(','));
+
+		//let array2 = new Array<string>();
+		//console.log(`person=${array2}`);
+		type StringArray = Array<string>;
+		let x: StringArray = new Array<string>();
+		console.log(x);
+		let proxy = ObjectProxy.createProxyFrom(Person);
+		console.log(`proxy=${proxy}`);
+
+		proxy.forename = 'Geoff 2';
+		proxy.surname = 'Wode 2';
+		console.log('proxy.forename = ${proxy.forename}');
+		console.log('proxy.surname = ${proxy.surname}');
+
+		let n: number = 2;
+		console.log(`typeof n = ${typeof n}`);
+
+		let b: boolean = true;
+		console.log(`typeof b = ${typeof b}`);
+
+		let s: string = 'hello';
+		console.log(`typeof s = ${typeof s}`);
+
+		let c: Person = new Person();
+		console.log(`typeof c = ${typeof c}`);
+
+		let a: Array<string> = ['array'];
+		console.log(`typeof a = ${typeof a}`);
 	}
 
 	protected async connectedCallback() {

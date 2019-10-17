@@ -93,7 +93,7 @@
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="globals.d.ts" />
     <TypeScriptCompile Include="WebComponents\Alert\Alert.ts" />
-    <TypeScriptCompile Include="WebComponents\BaseComponent\GenericProxy.ts" />
+    <TypeScriptCompile Include="WebComponents\BaseComponent\ObjectProxy.ts" />
     <TypeScriptCompile Include="WebComponents\BaseComponent\ArrayProxy.ts" />
     <TypeScriptCompile Include="WebComponents\BaseComponent\BaseInputForm.ts" />
     <TypeScriptCompile Include="WebComponents\BaseComponent\Logger.ts" />

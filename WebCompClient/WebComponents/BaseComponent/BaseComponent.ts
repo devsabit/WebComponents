@@ -66,12 +66,11 @@ export default class BaseComponent extends HTMLElement
 		return this.constructor.name;
 	}
 
-	public static getClassName(tag: string): string {
-		var name: string = tag.replace(/-([a-z])/gi, (_, part: string) => {
-			log.highlight(`part=${part}`);
-			return part.toUpperCase();
-		});
-		log.highlight(`getClassName() converted ${tag} to ${name}`);
+	public static getClassName(tagIn: string): string {
+		let tag = tagIn.toLowerCase();
+		tag = tag[0].toUpperCase() + tag.slice(1);
+		let name = tag.replace(/-([a-z])/gi, (_, part) => part.toUpperCase());
+		log.highlight(`getClassName() converted ${tagIn} to ${name}`);
 		return name;
 	}
 
